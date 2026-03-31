@@ -7,283 +7,140 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d0f1a;
-    --surface: #161929;
-    --card: #1e2235;
-    --border: #2a2f4a;
-    --accent: #7c6af7;
-    --accent2: #f7c16a;
-    --accent3: #4ef0c0;
-    --danger: #f75a5a;
-    --text: #e8eaf6;
-    --muted: #8a8fbb;
-    --correct: #4ef0c0;
-    --wrong: #f75a5a;
-    --radius: 14px;
-    --font-head: 'Syne', sans-serif;
-    --font-body: 'Space Grotesk', sans-serif;
+    --bg: #0d0f1a; --surface: #161929; --card: #1e2235; --border: #2a2f4a;
+    --accent: #7c6af7; --accent2: #f7c16a; --accent3: #4ef0c0;
+    --text: #e8eaf6; --muted: #8a8fbb; --correct: #4ef0c0; --wrong: #f75a5a;
+    --radius: 14px; --font-head: 'Syne', sans-serif; --font-body: 'Space Grotesk', sans-serif;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-body);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow-x: hidden;
-    padding: 20px;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at 20% 20%, rgba(124,106,247,0.12) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 80%, rgba(78,240,192,0.08) 0%, transparent 60%);
-    pointer-events: none;
-  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); min-height:100vh; display:flex; align-items:center; justify-content:center; overflow-x:hidden; padding:20px; }
+  body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 20% 20%,rgba(124,106,247,.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(78,240,192,.08) 0%,transparent 60%); pointer-events:none; }
+  .screen { display:none; width:100%; max-width:660px; animation:fadeUp .4s ease; }
+  .screen.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
 
-  /* ─── SCREENS ─── */
-  .screen { display: none; width: 100%; max-width: 640px; animation: fadeUp 0.4s ease; }
-  .screen.active { display: block; }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  /* HOME */
+  #home { text-align:center; }
+  .logo { font-family:var(--font-head); font-size:12px; letter-spacing:4px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; }
+  h1 { font-family:var(--font-head); font-size:clamp(1.9rem,6vw,3rem); line-height:1.1; margin-bottom:6px; }
+  h1 span { color:var(--accent2); }
+  .subtitle { color:var(--muted); font-size:14px; margin-bottom:16px; line-height:1.5; }
+  .exam-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(247,193,106,.12); border:1px solid rgba(247,193,106,.3); color:var(--accent2); border-radius:20px; font-size:12px; padding:5px 14px; margin-bottom:22px; font-weight:600; }
 
-  /* ─── HOME ─── */
-  #home { text-align: center; }
-  .logo { font-family: var(--font-head); font-size: 13px; letter-spacing: 4px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
-  h1 { font-family: var(--font-head); font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.1; margin-bottom: 8px; }
-  h1 span { color: var(--accent2); }
-  .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 36px; line-height: 1.5; }
-  .levels-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
-  .level-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 16px;
-    cursor: pointer;
-    transition: all 0.22s ease;
-    text-align: left;
-    position: relative;
-    overflow: hidden;
-  }
-  .level-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--accent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.22s ease;
-  }
-  .level-card:hover::before, .level-card.selected::before { transform: scaleX(1); }
-  .level-card:hover { border-color: var(--accent); background: #222640; transform: translateY(-2px); }
-  .level-card.selected { border-color: var(--accent); background: rgba(124,106,247,0.12); }
-  .level-card.locked { opacity: 0.4; cursor: not-allowed; }
-  .level-num { font-size: 11px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
-  .level-title { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-  .level-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
-  .level-badge { position: absolute; top: 12px; right: 12px; font-size: 18px; }
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 16px 40px;
-    font-size: 16px;
-    font-weight: 700;
-    font-family: var(--font-body);
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.5px;
-  }
-  .btn-primary:hover { background: #9585f9; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,106,247,0.35); }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
-  .mode-toggle { display: flex; gap: 10px; margin-bottom: 28px; justify-content: center; }
-  .mode-btn {
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 8px 18px;
-    border-radius: 50px;
-    font-size: 13px;
-    cursor: pointer;
-    font-family: var(--font-body);
-    transition: all 0.2s;
-  }
-  .mode-btn.active { background: rgba(124,106,247,0.15); border-color: var(--accent); color: var(--text); }
+  .mode-toggle { display:flex; gap:8px; margin-bottom:22px; justify-content:center; flex-wrap:wrap; }
+  .mode-btn { background:var(--card); border:1px solid var(--border); color:var(--muted); padding:8px 16px; border-radius:50px; font-size:13px; cursor:pointer; font-family:var(--font-body); transition:all .2s; }
+  .mode-btn.active { background:rgba(124,106,247,.15); border-color:var(--accent); color:var(--text); }
 
-  /* ─── QUIZ ─── */
-  #quiz { }
-  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-  .quiz-meta { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-  .quiz-score { font-family: var(--font-head); font-size: 18px; color: var(--accent2); font-weight: 700; }
-  .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 28px; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 2px; transition: width 0.4s ease; }
-  .question-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    margin-bottom: 20px;
-  }
-  .q-label { font-size: 11px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
-  .q-text { font-size: 17px; line-height: 1.6; font-weight: 500; }
-  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-  .opt-btn {
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    color: var(--text);
-    padding: 14px 18px;
-    border-radius: var(--radius);
-    font-size: 15px;
-    font-family: var(--font-body);
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.18s;
-    line-height: 1.4;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .opt-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(124,106,247,0.1); }
-  .opt-btn .opt-letter {
-    background: var(--border);
-    color: var(--muted);
-    border-radius: 6px;
-    min-width: 26px;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 1px;
-    transition: all 0.18s;
-  }
-  .opt-btn:hover:not(:disabled) .opt-letter { background: var(--accent); color: white; }
-  .opt-btn.correct { border-color: var(--correct); background: rgba(78,240,192,0.1); }
-  .opt-btn.correct .opt-letter { background: var(--correct); color: #0d0f1a; }
-  .opt-btn.wrong { border-color: var(--wrong); background: rgba(247,90,90,0.1); }
-  .opt-btn.wrong .opt-letter { background: var(--wrong); color: white; }
-  .opt-btn.show-correct { border-color: var(--correct); background: rgba(78,240,192,0.07); }
-  .opt-btn:disabled { cursor: default; }
-  .feedback-box {
-    background: var(--surface);
-    border-left: 3px solid var(--accent3);
-    border-radius: 10px;
-    padding: 16px 18px;
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--text);
-    margin-bottom: 18px;
-    display: none;
-  }
-  .feedback-box.visible { display: block; animation: fadeUp 0.3s ease; }
-  .feedback-box .fb-title { font-weight: 700; color: var(--accent3); font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
-  .feedback-box.wrong-fb { border-left-color: var(--accent2); }
-  .feedback-box.wrong-fb .fb-title { color: var(--accent2); }
-  .btn-next {
-    background: transparent;
-    border: 1.5px solid var(--accent);
-    color: var(--accent);
-    padding: 13px 28px;
-    border-radius: 50px;
-    font-size: 15px;
-    font-weight: 600;
-    font-family: var(--font-body);
-    cursor: pointer;
-    transition: all 0.2s;
-    display: none;
-  }
-  .btn-next.visible { display: inline-flex; align-items: center; gap: 8px; }
-  .btn-next:hover { background: var(--accent); color: white; }
-  .streak-bar { font-size: 13px; color: var(--accent2); text-align: center; height: 20px; margin-bottom: 8px; }
+  .levels-grid { display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:22px; }
+  .level-card { background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius); padding:17px 14px; cursor:pointer; transition:all .22s; text-align:left; position:relative; overflow:hidden; }
+  .level-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--accent); transform:scaleX(0); transform-origin:left; transition:transform .22s; }
+  .level-card:hover::before,.level-card.selected::before { transform:scaleX(1); }
+  .level-card:hover { border-color:var(--accent); background:#222640; transform:translateY(-2px); }
+  .level-card.selected { border-color:var(--accent); background:rgba(124,106,247,.12); }
+  .level-card.new-level::before { background:var(--accent2); }
+  .level-card.new-level:hover,.level-card.new-level.selected { border-color:var(--accent2); }
+  .level-card.new-level.selected { background:rgba(247,193,106,.1); }
+  .level-num { font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:4px; }
+  .level-card.new-level .level-num { color:var(--accent2); }
+  .level-title { font-family:var(--font-head); font-size:13px; font-weight:700; margin-bottom:3px; }
+  .level-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+  .level-badge { position:absolute; top:10px; right:10px; font-size:16px; }
+  .new-tag { position:absolute; top:10px; right:10px; background:var(--accent2); color:#0d0f1a; font-size:9px; font-weight:800; padding:2px 6px; border-radius:4px; letter-spacing:1px; }
 
-  /* ─── RESULTS ─── */
-  #results { text-align: center; }
-  .results-ring {
-    width: 140px; height: 140px;
-    border-radius: 50%;
-    background: conic-gradient(var(--accent) var(--pct), var(--border) 0);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 28px;
-    position: relative;
-  }
-  .results-ring::after {
-    content: '';
-    width: 110px; height: 110px;
-    background: var(--bg);
-    border-radius: 50%;
-    position: absolute;
-  }
-  .ring-label { position: relative; z-index: 1; font-family: var(--font-head); font-size: 32px; font-weight: 800; color: var(--accent); }
-  .results-title { font-family: var(--font-head); font-size: 28px; margin-bottom: 8px; }
-  .results-sub { color: var(--muted); font-size: 15px; margin-bottom: 32px; line-height: 1.5; }
-  .results-breakdown { text-align: left; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 28px; }
-  .breakdown-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
-  .breakdown-item:last-child { border-bottom: none; }
-  .breakdown-icon { font-size: 16px; margin-right: 10px; }
-  .breakdown-val { font-weight: 700; color: var(--accent2); }
-  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .btn-secondary {
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    color: var(--text);
-    padding: 13px 24px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 600;
-    font-family: var(--font-body);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background:var(--accent); color:white; border:none; padding:14px 34px; font-size:15px; font-weight:700; font-family:var(--font-body); border-radius:50px; cursor:pointer; transition:all .2s; letter-spacing:.5px; }
+  .btn-primary:hover { background:#9585f9; transform:translateY(-2px); box-shadow:0 8px 24px rgba(124,106,247,.35); }
+  .btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+  .btn-primary.gold { background:var(--accent2); color:#0d0f1a; }
+  .btn-primary.gold:hover { background:#f9cc7e; box-shadow:0 8px 24px rgba(247,193,106,.35); }
 
-  /* ─── STUDY MODE ─── */
-  .study-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 16px;
-  }
-  .study-card .term { font-family: var(--font-head); font-size: 18px; color: var(--accent2); margin-bottom: 8px; }
-  .study-card .def { font-size: 14px; line-height: 1.7; color: var(--text); }
-  .study-card .example { font-size: 13px; color: var(--muted); font-style: italic; margin-top: 10px; border-left: 2px solid var(--accent); padding-left: 12px; }
-  .study-back { margin-bottom: 20px; }
-  .study-back button { background: none; border: none; color: var(--muted); font-size: 14px; cursor: pointer; font-family: var(--font-body); }
-  .study-back button:hover { color: var(--text); }
-  .cheat-sheet-title { font-family: var(--font-head); font-size: 22px; margin-bottom: 6px; }
-  .cheat-sheet-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .exam-mode-card { background:linear-gradient(135deg,rgba(247,193,106,.08),rgba(124,106,247,.08)); border:1.5px solid rgba(247,193,106,.25); border-radius:var(--radius); padding:18px 20px; margin-bottom:22px; text-align:left; }
+  .exam-mode-title { font-family:var(--font-head); font-size:15px; color:var(--accent2); margin-bottom:4px; }
+  .exam-mode-desc { font-size:13px; color:var(--muted); line-height:1.5; }
 
-  /* chips */
-  .chip { display: inline-block; background: rgba(124,106,247,0.15); color: var(--accent); border: 1px solid rgba(124,106,247,0.3); border-radius: 20px; font-size: 11px; padding: 3px 10px; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  /* QUIZ */
+  .quiz-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; gap:10px; }
+  .quiz-meta-top { font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+  .quiz-level-name { font-size:13px; color:var(--text); font-weight:600; margin-top:3px; }
+  .quiz-score { font-family:var(--font-head); font-size:20px; color:var(--accent2); font-weight:700; white-space:nowrap; }
+  .progress-bar { height:4px; background:var(--border); border-radius:2px; margin-bottom:8px; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent3)); border-radius:2px; transition:width .4s; }
+  .streak-bar { font-size:13px; color:var(--accent2); text-align:center; height:22px; margin-bottom:12px; font-weight:600; }
+  .question-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px; margin-bottom:14px; }
+  .q-category { display:inline-flex; align-items:center; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; background:rgba(124,106,247,.12); border-radius:20px; padding:3px 10px; margin-bottom:11px; }
+  .q-text { font-size:15px; line-height:1.65; font-weight:500; }
 
-  .pulse { animation: pulse 1.5s ease infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  .options { display:flex; flex-direction:column; gap:9px; margin-bottom:14px; }
+  .opt-btn { background:var(--card); border:1.5px solid var(--border); color:var(--text); padding:12px 15px; border-radius:var(--radius); font-size:14px; font-family:var(--font-body); cursor:pointer; text-align:left; transition:all .18s; line-height:1.4; display:flex; align-items:flex-start; gap:10px; }
+  .opt-btn:hover:not(:disabled) { border-color:var(--accent); background:rgba(124,106,247,.1); }
+  .opt-letter { background:var(--border); color:var(--muted); border-radius:6px; min-width:23px; height:23px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; margin-top:1px; transition:all .18s; }
+  .opt-btn:hover:not(:disabled) .opt-letter { background:var(--accent); color:white; }
+  .opt-btn.correct { border-color:var(--correct); background:rgba(78,240,192,.1); }
+  .opt-btn.correct .opt-letter { background:var(--correct); color:#0d0f1a; }
+  .opt-btn.wrong { border-color:var(--wrong); background:rgba(247,90,90,.1); }
+  .opt-btn.wrong .opt-letter { background:var(--wrong); color:white; }
+  .opt-btn.show-correct { border-color:var(--correct); background:rgba(78,240,192,.07); }
+  .opt-btn:disabled { cursor:default; }
+
+  .feedback-box { background:var(--surface); border-left:3px solid var(--accent3); border-radius:10px; padding:14px 16px; font-size:13.5px; line-height:1.65; color:var(--text); margin-bottom:14px; display:none; }
+  .feedback-box.visible { display:block; animation:fadeUp .3s; }
+  .feedback-box .fb-title { font-weight:700; color:var(--accent3); font-size:11px; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
+  .feedback-box.wrong-fb { border-left-color:var(--accent2); }
+  .feedback-box.wrong-fb .fb-title { color:var(--accent2); }
+
+  .btn-next { background:transparent; border:1.5px solid var(--accent); color:var(--accent); padding:11px 24px; border-radius:50px; font-size:14px; font-weight:600; font-family:var(--font-body); cursor:pointer; transition:all .2s; display:none; }
+  .btn-next.visible { display:inline-flex; align-items:center; gap:8px; }
+  .btn-next:hover { background:var(--accent); color:white; }
+
+  /* RESULTS */
+  #results { text-align:center; }
+  .results-ring { width:130px; height:130px; border-radius:50%; background:conic-gradient(var(--accent) var(--pct),var(--border) 0); display:flex; align-items:center; justify-content:center; margin:0 auto 22px; position:relative; }
+  .results-ring::after { content:''; width:104px; height:104px; background:var(--bg); border-radius:50%; position:absolute; }
+  .ring-label { position:relative; z-index:1; font-family:var(--font-head); font-size:28px; font-weight:800; color:var(--accent); }
+  .results-title { font-family:var(--font-head); font-size:24px; margin-bottom:6px; }
+  .results-sub { color:var(--muted); font-size:14px; margin-bottom:24px; line-height:1.5; }
+  .results-breakdown { text-align:left; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:22px; }
+  .breakdown-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border); font-size:14px; }
+  .breakdown-item:last-child { border-bottom:none; }
+  .breakdown-icon { margin-right:8px; }
+  .breakdown-val { font-weight:700; color:var(--accent2); }
+  .btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .btn-secondary { background:var(--card); border:1.5px solid var(--border); color:var(--text); padding:11px 20px; border-radius:50px; font-size:14px; font-weight:600; font-family:var(--font-body); cursor:pointer; transition:all .2s; }
+  .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* REPASO */
+  .study-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:12px; }
+  .study-card .term { font-family:var(--font-head); font-size:15px; color:var(--accent2); margin-bottom:6px; }
+  .study-card .def { font-size:14px; line-height:1.7; color:var(--text); }
+  .study-card .example { font-size:13px; color:var(--muted); font-style:italic; margin-top:9px; border-left:2px solid var(--accent); padding-left:11px; }
+  .chip { display:inline-block; background:rgba(124,106,247,.15); color:var(--accent); border:1px solid rgba(124,106,247,.3); border-radius:20px; font-size:10px; padding:2px 9px; margin-bottom:9px; letter-spacing:1px; text-transform:uppercase; }
+  .chip.inductivo { background:rgba(78,240,192,.1); color:var(--accent3); border-color:rgba(78,240,192,.3); }
+  .chip.evaluacion { background:rgba(247,193,106,.1); color:var(--accent2); border-color:rgba(247,193,106,.3); }
+  .chip.icse { background:rgba(247,90,90,.1); color:#f75a5a; border-color:rgba(247,90,90,.3); }
+  .cheat-sheet-title { font-family:var(--font-head); font-size:20px; margin-bottom:4px; }
+  .cheat-sheet-sub { color:var(--muted); font-size:13px; margin-bottom:18px; }
+  .topic-filter { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:18px; }
+  .topic-btn { background:var(--card); border:1px solid var(--border); color:var(--muted); padding:5px 13px; border-radius:20px; font-size:12px; cursor:pointer; font-family:var(--font-body); transition:all .2s; }
+  .topic-btn.active { background:rgba(124,106,247,.15); border-color:var(--accent); color:var(--text); }
 </style>
 </head>
 <body>
 
-<!-- ── HOME ── -->
+<!-- ══════════ HOME ══════════ -->
 <div id="home" class="screen active">
   <div class="logo">UBA XXI · IPC Cátedra A</div>
   <h1>Pensamiento<br><span>Científico</span></h1>
-  <p class="subtitle">Trivia de estudio basada en las clases de Natalia Huacar.<br>Examen: <strong>16 de abril</strong> — ¡vamos que llegás! 🧠</p>
+  <div class="exam-badge">📅 Examen: 16 de abril</div>
+  <p class="subtitle">Trivia basada en las clases de Natalia Huacar.<br>5 niveles · 48 preguntas · feedback explicativo en cada una.</p>
 
   <div class="mode-toggle">
-    <button class="mode-btn active" onclick="setMode('trivia')" id="modeTrivia">🎮 Trivia</button>
-    <button class="mode-btn" onclick="setMode('study')" id="modeStudy">📖 Repaso rápido</button>
+    <button class="mode-btn active" onclick="setMode('trivia')" id="modeTriviaBtn">🎮 Trivia</button>
+    <button class="mode-btn" onclick="setMode('study')" id="modeStudyBtn">📖 Repaso</button>
+    <button class="mode-btn" onclick="setMode('exam')" id="modeExamBtn">🎯 Simulacro</button>
   </div>
 
+  <!-- TRIVIA SECTION -->
   <div id="triviaSection">
-    <div class="levels-grid" id="levelsGrid">
+    <div class="levels-grid">
       <div class="level-card" onclick="selectLevel(0)" id="lcard0">
         <div class="level-badge">🔍</div>
         <div class="level-num">Nivel 1</div>
@@ -299,47 +156,75 @@
       <div class="level-card" onclick="selectLevel(2)" id="lcard2">
         <div class="level-badge">⚖️</div>
         <div class="level-num">Nivel 3</div>
-        <div class="level-title">Evaluación</div>
-        <div class="level-desc">Validez, solidez, deducción e inducción</div>
+        <div class="level-title">Deductivos</div>
+        <div class="level-desc">Validez, solidez, falacias clásicas</div>
       </div>
-      <div class="level-card" onclick="selectLevel(3)" id="lcard3">
-        <div class="level-badge">🎯</div>
+      <div class="level-card new-level" onclick="selectLevel(3)" id="lcard3">
+        <div class="new-tag">NUEVO</div>
         <div class="level-num">Nivel 4</div>
-        <div class="level-title">Todo junto</div>
-        <div class="level-desc">Mezcla de todos los temas + ICSE</div>
+        <div class="level-title">Inductivos</div>
+        <div class="level-desc">Analogía, enumeración incompleta, silogismo inductivo</div>
+      </div>
+      <div class="level-card" onclick="selectLevel(4)" id="lcard4" style="grid-column:span 2">
+        <div class="level-badge">🏆</div>
+        <div class="level-num">Nivel 5 · Final Boss</div>
+        <div class="level-title">Todo junto + ICSE</div>
+        <div class="level-desc">IPC completo: Estado, Nación, Sociedad Civil, argumentos de todo tipo</div>
       </div>
     </div>
     <button class="btn-primary" id="startBtn" onclick="startQuiz()" disabled>Elegí un nivel para empezar</button>
   </div>
 
+  <!-- REPASO SECTION -->
   <div id="studySection" style="display:none">
     <div class="cheat-sheet-title">Conceptos clave</div>
-    <div class="cheat-sheet-sub">Leé esto antes de jugar — o usalo para repasar rápido.</div>
+    <div class="cheat-sheet-sub">Todos los temas del examen en un lugar. Leé esto antes de jugar.</div>
+    <div class="topic-filter">
+      <button class="topic-btn active" onclick="filterStudy('all',this)">Todo</button>
+      <button class="topic-btn" onclick="filterStudy('Reconocimiento',this)">Argumentos</button>
+      <button class="topic-btn" onclick="filterStudy('Enunciados',this)">Enunciados</button>
+      <button class="topic-btn" onclick="filterStudy('Evaluación',this)">Deductivo</button>
+      <button class="topic-btn" onclick="filterStudy('Inductivo',this)">Inductivo ★</button>
+      <button class="topic-btn" onclick="filterStudy('ICSE',this)">ICSE</button>
+    </div>
     <div id="studyCards"></div>
-    <button class="btn-primary" onclick="setMode('trivia')">Ir a practicar →</button>
+    <button class="btn-primary" onclick="setMode('trivia')" style="margin-top:6px">Ir a practicar →</button>
+  </div>
+
+  <!-- SIMULACRO SECTION -->
+  <div id="examSection" style="display:none">
+    <div class="exam-mode-card">
+      <div class="exam-mode-title">🎯 Simulacro de examen</div>
+      <div class="exam-mode-desc">20 preguntas mezcladas de todos los niveles en orden aleatorio. Sin feedback hasta el final — igual que en el examen real. Usalo los últimos días antes del 16.</div>
+    </div>
+    <button class="btn-primary gold" onclick="startExamMode()">Empezar simulacro →</button>
   </div>
 </div>
 
-<!-- ── QUIZ ── -->
+<!-- ══════════ QUIZ ══════════ -->
 <div id="quiz" class="screen">
   <div class="quiz-header">
     <div>
-      <div class="quiz-meta" id="quizMeta">Nivel 1 · Pregunta 1</div>
+      <div class="quiz-meta-top" id="quizMeta">Pregunta 1 de 8</div>
+      <div class="quiz-level-name" id="quizLevelName"></div>
     </div>
     <div class="quiz-score" id="quizScore">0 pts</div>
   </div>
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   <div class="streak-bar" id="streakBar"></div>
   <div class="question-card">
-    <div class="q-label" id="qLabel">Pregunta</div>
+    <div class="q-category" id="qCategory">Pregunta</div>
     <div class="q-text" id="qText">…</div>
   </div>
   <div class="options" id="optionsContainer"></div>
-  <div class="feedback-box" id="feedbackBox"><div class="fb-title" id="fbTitle"></div><div id="fbText"></div></div>
-  <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Siguiente <span>→</span></button>
+  <div class="feedback-box" id="feedbackBox">
+    <div class="fb-title" id="fbTitle"></div>
+    <div id="fbText"></div>
+  </div>
+  <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Siguiente →</button>
 </div>
 
-<!-- ── RESULTS ── -->
+<!-- ══════════ RESULTS ══════════ -->
 <div id="results" class="screen">
   <div class="results-ring" id="resultsRing" style="--pct:0deg">
     <span class="ring-label" id="ringLabel">0%</span>
@@ -355,440 +240,242 @@
 
 <script>
 /* ═══════════════════════════════════════════
-   BANCO DE PREGUNTAS
+   BANCO DE PREGUNTAS — 5 NIVELES
 ═══════════════════════════════════════════ */
 const LEVELS = [
   {
-    name: "Reconocimiento de argumentos",
-    questions: [
-      {
-        q: "¿Qué es un argumento según la clase de Huacar?",
-        ops: ["Una opinión personal sobre un tema", "Un conjunto de enunciados con premisas y una conclusión", "Una pregunta retórica", "Una oración muy larga"],
-        c: 1,
-        fb: "Un argumento es un conjunto de enunciados con una estructura: hay premisas (razones) y una conclusión (lo que se infiere). No todo conjunto de enunciados es un argumento; necesita esa estructura."
-      },
-      {
-        q: "¿Qué son los enunciados?",
-        ops: ["Oraciones que expresan emociones", "Oraciones que dan órdenes", "Oraciones que afirman o niegan algo, y por eso pueden ser verdaderas o falsas", "Cualquier tipo de oración"],
-        c: 2,
-        fb: "Los enunciados son oraciones que afirman o niegan que algo sea el caso. Por eso podemos preguntarnos si son V o F. Una pregunta o una orden NO son enunciados."
-      },
-      {
-        q: "La palabra 'Por lo tanto' es un indicador de…",
-        ops: ["Premisa", "Conclusión", "Subargumento", "Enunciado falso"],
-        c: 1,
-        fb: "'Por lo tanto', 'luego', 'en consecuencia', 'se sigue que' son indicadores de CONCLUSIÓN. Lo que viene ANTES de esas expresiones son las premisas."
-      },
-      {
-        q: "Las palabras 'dado que', 'puesto que', 'porque' son indicadores de…",
-        ops: ["Conclusión", "Contradicción", "Premisa", "Tautología"],
-        c: 2,
-        fb: "'Dado que', 'puesto que', 'pues', 'porque' son indicadores de PREMISA. Lo que les sigue son las razones que se ofrecen a favor de la conclusión."
-      },
-      {
-        q: "En un argumento, ¿cuántas conclusiones puede haber?",
-        ops: ["Tantas como premisas", "Solo una", "Ninguna si el texto es largo", "Depende del tipo de texto"],
-        c: 1,
-        fb: "La conclusión es única. Puede haber muchas premisas, pero la conclusión que se defiende es una sola. Además, puede aparecer al principio, al medio o al final del texto."
-      },
-      {
-        q: "En el texto: 'Sin acceso universal a la educación se reproduce la desigualdad. En consecuencia, la educación pública es indispensable. Además, las sociedades inclusivas tienen mejor movilidad social.' ¿Dónde está la conclusión?",
-        ops: ["Al final del texto", "Al principio del texto", "En el medio, señalada por 'en consecuencia'", "No hay conclusión en este texto"],
-        c: 2,
-        fb: "El indicador 'en consecuencia' señala la conclusión aunque esté en el medio. Lo anterior es premisa y lo que agrega 'además' también es una premisa al final."
-      },
-      {
-        q: "¿Puede formularse un argumento en una sola oración?",
-        ops: ["No, siempre se necesitan varias oraciones", "Sí, por ejemplo: 'La comida italiana es la mejor tiene los mejores sabores'", "Solo si hay más de dos premisas", "Solo en textos filosóficos formales"],
-        c: 1,
-        fb: "¡Sí! Un argumento puede estar en una sola oración. El 'porque' actúa como indicador de premisa. 'La comida italiana es la mejor' sería la conclusión y tiene los mejores sabores' sería la premisa."
-      },
-      {
-        q: "Si alguien te dice '¿Me alcanzás el agua?', ¿esa oración es un enunciado?",
-        ops: ["Sí, afirma que el agua está cerca", "No, es una pregunta y no puede ser verdadera ni falsa", "Sí, porque está en forma de oración", "Depende del contexto"],
-        c: 1,
-        fb: "Las preguntas, órdenes y pedidos NO son enunciados. Solo los enunciados pueden ser verdaderos o falsos. Una pregunta no tiene valor de verdad."
-      }
+    name:"Reconocimiento de argumentos", emoji:"🔍",
+    questions:[
+      {q:"¿Qué es un argumento según Huacar?",ops:["Una opinión personal sobre un tema","Un conjunto de enunciados con premisas y una conclusión","Una pregunta retórica","Una oración muy larga"],c:1,cat:"Argumentos",fb:"Un argumento es un conjunto de enunciados con estructura: hay premisas (razones) y una conclusión (lo que se infiere). No todo conjunto de enunciados es argumento — necesita esa estructura."},
+      {q:"¿Qué son los enunciados?",ops:["Oraciones que expresan emociones","Oraciones que dan órdenes","Oraciones que afirman o niegan algo — pueden ser verdaderas o falsas","Cualquier tipo de oración"],c:2,cat:"Enunciados",fb:"Los enunciados afirman o niegan algo. Por eso podemos preguntarnos si son V o F. Una pregunta o una orden NO son enunciados — no tiene sentido decirles 'eso es falso'."},
+      {q:"La expresión 'Por lo tanto' es un indicador de…",ops:["Premisa","Conclusión","Subargumento","Enunciado falso"],c:1,cat:"Indicadores",fb:"'Por lo tanto', 'luego', 'en consecuencia', 'se sigue que' son indicadores de CONCLUSIÓN. Lo anterior a esas palabras son las premisas."},
+      {q:"Las palabras 'dado que', 'puesto que', 'porque' son indicadores de…",ops:["Conclusión","Contradicción","Premisa","Tautología"],c:2,cat:"Indicadores",fb:"'Dado que', 'puesto que', 'pues', 'porque' son indicadores de PREMISA. Lo que les sigue son las razones ofrecidas a favor de la conclusión."},
+      {q:"En un argumento, ¿cuántas conclusiones puede haber?",ops:["Tantas como premisas","Solo una","Ninguna si el texto es largo","Depende del texto"],c:1,cat:"Argumentos",fb:"La conclusión es ÚNICA. Puede haber muchas premisas, pero la conclusión es una sola. Puede aparecer al principio, al medio o al final del texto."},
+      {q:"En: 'Sin educación universal se reproduce la desigualdad. En consecuencia, la educación pública es indispensable. Además, las sociedades inclusivas tienen mejor movilidad.' ¿Dónde está la conclusión?",ops:["Al final","Al principio","En el medio, señalada por 'en consecuencia'","No hay conclusión"],c:2,cat:"Indicadores",fb:"El indicador 'en consecuencia' señala la conclusión aunque esté en el medio. Lo anterior es premisa y el 'además' final agrega otra premisa."},
+      {q:"¿Puede formularse un argumento en una sola oración?",ops:["No, siempre se necesitan varias oraciones","Sí, por ejemplo: 'Racing es el mejor porque tiene los mejores jugadores'","Solo si hay más de dos premisas","Solo en textos filosóficos formales"],c:1,cat:"Argumentos",fb:"¡Sí! El 'porque' actúa como indicador de premisa dentro de una sola oración. 'Racing es el mejor' → conclusión; 'tiene los mejores jugadores' → premisa."},
+      {q:"Si alguien dice '¿Me alcanzás el agua?', ¿esa oración es un enunciado?",ops:["Sí, afirma algo sobre el agua","No, es una pregunta y no puede ser verdadera ni falsa","Sí, porque tiene sujeto y predicado","Depende del contexto"],c:1,cat:"Enunciados",fb:"Las preguntas, órdenes y pedidos NO son enunciados. Solo los enunciados pueden ser V o F. Decirle a una pregunta 'eso es falso' no tiene sentido."}
     ]
   },
   {
-    name: "Tipos de enunciados",
-    questions: [
-      {
-        q: "'Federico no está en el aula.' Este enunciado es…",
-        ops: ["Una disyunción", "Una negación", "Un condicional", "Un enunciado simple"],
-        c: 1,
-        fb: "Es una negación. La característica es el 'no' (o partículas como 'des-', 'in-'). Una negación es verdadera cuando el enunciado negado es falso, y viceversa."
-      },
-      {
-        q: "'Josefina y Eliseo están en el aula.' ¿En qué condición es verdadera esta conjunción?",
-        ops: ["Cuando al menos uno está en el aula", "Solo cuando ninguno está", "Solo cuando AMBOS están en el aula", "Siempre es verdadera"],
-        c: 2,
-        fb: "Una CONJUNCIÓN es verdadera solo cuando AMBOS conyuntos son verdaderos. Si uno solo está presente, la conjunción es falsa."
-      },
-      {
-        q: "'Emilia o Ulises van a traer mate.' Esta disyunción (inclusiva) es verdadera cuando…",
-        ops: ["Solo si Emilia trae pero Ulises no", "Solo si ambos no traen", "Cuando al menos uno de los dos trae mate (o ambos)", "Solo si exactamente uno trae"],
-        c: 2,
-        fb: "En la disyunción INCLUSIVA (el 'o' lógico normal) basta con que AL MENOS UNO de los disyuntos sea verdadero. Incluso si ambos traen mate, la disyunción es verdadera."
-      },
-      {
-        q: "En el condicional 'Si llueve, me quedo en casa', ¿cuándo es FALSO?",
-        ops: ["Cuando llueve y me quedo", "Cuando no llueve y salgo", "Cuando llueve y salgo igual", "Nunca es falso"],
-        c: 2,
-        fb: "Un condicional es FALSO solo cuando el ANTECEDENTE es verdadero y el CONSECUENTE es falso. O sea: 'llueve' (verdadero) pero 'me quedo en casa' (falso). Todas las otras combinaciones lo hacen verdadero."
-      },
-      {
-        q: "¿Qué es una tautología?",
-        ops: ["Un enunciado que siempre es falso por su estructura", "Un enunciado que puede ser verdadero o falso según el contexto", "Un enunciado que es necesariamente verdadero por su estructura lógica", "Un tipo de argumento inválido"],
-        c: 2,
-        fb: "'Hoy es viernes o no lo es' es una tautología: no hay ningún escenario posible en que sea falsa. Su verdad no depende del mundo, sino de la estructura lógica del lenguaje."
-      },
-      {
-        q: "¿Qué es una contradicción?",
-        ops: ["Un enunciado cuya verdad depende del contexto", "Un enunciado necesariamente falso por su estructura", "Lo mismo que una tautología pero negada", "Un argumento con premisas falsas"],
-        c: 1,
-        fb: "'Hace frío y no hace frío' es una contradicción: es necesariamente falsa. Para que la conjunción sea verdadera ambos conyuntos deberían ser verdaderos, pero eso es imposible con un 'no' de por medio."
-      },
-      {
-        q: "'Hoy es lunes' es un ejemplo de…",
-        ops: ["Tautología", "Contradicción", "Contingencia", "Negación necesaria"],
-        c: 2,
-        fb: "Es una contingencia: puede ser verdadera o falsa dependiendo del día. La mayoría de los enunciados cotidianos son contingencias: su valor de verdad depende de cómo es el mundo."
-      },
-      {
-        q: "El enunciado 'Todos los gatos son mamíferos' es un enunciado…",
-        ops: ["Singular", "Existencial", "Universal", "Probabilístico"],
-        c: 2,
-        fb: "Es universal porque habla de TODOS los miembros de una clase. Para probar que es verdadero habría que revisar todos los casos, pero basta UN contraejemplo para probar que es falso."
-      },
-      {
-        q: "¿Cuál es la diferencia entre un enunciado SINGULAR y uno EXISTENCIAL?",
-        ops: ["Ninguna, son lo mismo", "El singular habla de un individuo específico; el existencial afirma que existe al menos uno con cierta propiedad", "El existencial siempre es verdadero", "El singular solo aplica a personas famosas"],
-        c: 1,
-        fb: "'Michi es un gato' es singular (habla de un individuo). 'Existe al menos un gato negro' es existencial. Son tipos distintos de enunciados con alcances diferentes."
-      }
+    name:"Tipos de enunciados", emoji:"🧩",
+    questions:[
+      {q:"'Federico no está en el aula.' Este enunciado es…",ops:["Una disyunción","Una negación","Un condicional","Un enunciado simple"],c:1,cat:"Negación",fb:"Es una negación. Verdadera cuando el enunciado negado es falso. Partículas negadoras: 'no', 'des-' (descontento), 'in-' (infeliz)."},
+      {q:"'Josefina y Eliseo están en el aula.' ¿En qué condición es verdadera?",ops:["Cuando al menos uno está","Solo cuando ninguno está","Solo cuando AMBOS están","Siempre es verdadera"],c:2,cat:"Conjunción",fb:"Una CONJUNCIÓN es verdadera solo cuando AMBOS conyuntos son verdaderos. Si falta uno, es falsa."},
+      {q:"'Emilia o Ulises van a traer mate.' Esta disyunción inclusiva es verdadera cuando…",ops:["Solo si Emilia trae pero Ulises no","Solo si ninguno trae","Cuando al menos uno trae (o ambos)","Solo si exactamente uno trae"],c:2,cat:"Disyunción",fb:"En la disyunción INCLUSIVA basta con que AL MENOS UNO sea verdadero. Si los dos traen mate, la disyunción sigue siendo verdadera."},
+      {q:"En el condicional 'Si llueve, me quedo en casa', ¿cuándo es FALSO?",ops:["Cuando llueve y me quedo","Cuando no llueve y salgo","Cuando llueve y salgo igual","Nunca es falso"],c:2,cat:"Condicional",fb:"Un condicional es FALSO solo cuando el antecedente es V y el consecuente es F: llueve (V) pero salgo (F). Todas las otras combinaciones son verdaderas."},
+      {q:"¿Qué es una tautología?",ops:["Un enunciado siempre falso por su estructura","Un enunciado V o F según el contexto","Un enunciado necesariamente verdadero por su estructura lógica","Un tipo de argumento inválido"],c:2,cat:"Modalidad",fb:"'Hoy es viernes o no lo es' es una tautología. Necesariamente V. No hay escenario posible donde sea falsa. Su verdad depende de la estructura lógica, no del mundo."},
+      {q:"¿Qué es una contradicción?",ops:["Un enunciado V o F según el contexto","Un enunciado necesariamente falso por su estructura","Lo mismo que una tautología pero negada","Un argumento con premisas falsas"],c:1,cat:"Modalidad",fb:"'Hace frío y no hace frío' es una contradicción: necesariamente F. Para que la conjunción sea V, ambos conyuntos deben ser V — pero eso es imposible con el 'no' de por medio."},
+      {q:"'Hoy es lunes' es un ejemplo de…",ops:["Tautología","Contradicción","Contingencia","Negación necesaria"],c:2,cat:"Modalidad",fb:"Es una contingencia: puede ser V o F dependiendo del día. La mayoría de los enunciados cotidianos son contingencias — su valor depende del mundo."},
+      {q:"El enunciado 'Todos los gatos son mamíferos' es un enunciado…",ops:["Singular","Existencial","Universal","Probabilístico"],c:2,cat:"Alcance",fb:"Es universal porque habla de TODOS los miembros de una clase. Para probarlo verdadero habría que revisar todos los casos; basta UN contraejemplo para probar que es falso."},
+      {q:"¿Cuál es la diferencia entre enunciado SINGULAR y EXISTENCIAL?",ops:["Son lo mismo","El singular habla de un individuo específico; el existencial afirma que existe al menos uno con cierta propiedad","El existencial siempre es verdadero","El singular solo aplica a personas famosas"],c:1,cat:"Alcance",fb:"'Michi es un gato' es singular (individuo concreto). 'Existe al menos un gato negro' es existencial. Distintos alcances y distintas condiciones de prueba."}
     ]
   },
   {
-    name: "Evaluación de argumentos",
-    questions: [
-      {
-        q: "Un argumento deductivo es VÁLIDO cuando…",
-        ops: ["Las premisas son todas verdaderas", "Es imposible que las premisas sean verdaderas y la conclusión falsa", "La conclusión es una opinión razonable", "Tiene muchas premisas"],
-        c: 1,
-        fb: "Validez = si las premisas son verdaderas, la conclusión NECESARIAMENTE también lo es. Es imposible aceptar las premisas y rechazar la conclusión sin caer en incoherencia."
-      },
-      {
-        q: "¿Puede un argumento VÁLIDO tener premisas falsas y conclusión verdadera?",
-        ops: ["No, eso es imposible", "Sí, la validez solo garantiza la transmisión de verdad, no el punto de partida", "Solo si es un argumento inductivo", "Solo si la conclusión es una tautología"],
-        c: 1,
-        fb: "¡Sí! Un argumento válido con premisas falsas puede llegar a una conclusión verdadera 'de casualidad'. La validez solo garantiza que si EMPEZÁS con premisas verdaderas, LLEGÁS a una conclusión verdadera."
-      },
-      {
-        q: "Un argumento es SÓLIDO cuando…",
-        ops: ["Es válido y además tiene premisas verdaderas", "Tiene muchas premisas", "La conclusión parece razonable", "Es inductivo y probable"],
-        c: 0,
-        fb: "SÓLIDO = VÁLIDO + PREMISAS VERDADERAS. Solo un argumento sólido nos garantiza que la conclusión también es verdadera. La solidez es el estándar máximo de un argumento deductivo."
-      },
-      {
-        q: "¿Cuál es la diferencia central entre un argumento DEDUCTIVO y uno INDUCTIVO?",
-        ops: ["El deductivo es más largo", "En el deductivo las premisas garantizan la conclusión; en el inductivo solo la hacen probable", "El inductivo usa números y estadísticas siempre", "El deductivo solo aplica a ciencias exactas"],
-        c: 1,
-        fb: "Deductivo: si las premisas son V, la conclusión es NECESARIAMENTE V. Inductivo: las premisas dan apoyo pero no garantizan la conclusión. Ej: 'la mayoría de los argentinos toman mate, Virginia es argentina, por lo tanto Virginia toma mate' → podría ser falso."
-      },
-      {
-        q: "La FALACIA de 'afirmación del consecuente' sería: Si estudio, apruebo. Aprobé. Por lo tanto…",
-        ops: ["Estudié (esto es válido)", "No estudié (esto es válido)", "Estudié (esto es inválido — pudo haber otra razón para aprobar)", "Voy a seguir aprobando"],
-        c: 2,
-        fb: "Es inválido porque la premisa solo decía que estudiar era SUFICIENTE para aprobar, no necesario. Podrías haber aprobado por otra razón. Afirmar el consecuente ('aprobé') no garantiza el antecedente ('estudié')."
-      },
-      {
-        q: "La FALACIA de 'negación del antecedente' sería: Si estudio, apruebo. No estudié. Por lo tanto…",
-        ops: ["Aprobé (válido)", "No aprobé (inválido — pude aprobar igual)", "No aprobé (válido)", "Estudié igual"],
-        c: 1,
-        fb: "Es inválido. La premisa dice que estudiar es SUFICIENTE para aprobar, pero no dice que es lo ÚNICO que lleva a aprobar. Podría no haber estudiado y aun así aprobar por otra razón."
-      },
-      {
-        q: "Si un argumento es INVÁLIDO, ¿puede tener premisas verdaderas y conclusión verdadera?",
-        ops: ["No, nunca", "Sí, en un argumento inválido no hay ninguna garantía sobre la relación P-C", "Solo si es inductivo", "Solo si las premisas son tautologías"],
-        c: 1,
-        fb: "Sí. En un argumento inválido cualquier combinación de valores de verdad es posible (V-V, V-F, F-V, F-F). La invalidez significa que no hay garantía de transmisión de verdad."
-      },
-      {
-        q: "El argumento: 'Todos los porteños son argentinos. Virginia es porteña. Por lo tanto Virginia es argentina.' Es…",
-        ops: ["Inválido porque habla de personas", "Válido pero no sólido", "Válido y sólido", "Un argumento inductivo fuerte"],
-        c: 2,
-        fb: "Es VÁLIDO (la estructura garantiza la conclusión si las premisas son V) y SÓLIDO (las premisas son efectivamente verdaderas). Por lo tanto la conclusión también es verdadera."
-      }
+    name:"Evaluación deductiva", emoji:"⚖️",
+    questions:[
+      {q:"Un argumento deductivo es VÁLIDO cuando…",ops:["Las premisas son todas verdaderas","Es imposible que las premisas sean verdaderas y la conclusión falsa","La conclusión parece razonable","Tiene muchas premisas"],c:1,cat:"Validez",fb:"Validez: si las premisas son V, la conclusión NECESARIAMENTE también lo es. Es imposible aceptar las premisas y rechazar la conclusión sin caer en incoherencia."},
+      {q:"¿Puede un argumento VÁLIDO tener premisas falsas y conclusión verdadera?",ops:["No, eso es imposible","Sí — la validez solo garantiza que si empezás con P verdaderas llegás a C verdadera","Solo si es inductivo","Solo si la conclusión es una tautología"],c:1,cat:"Validez",fb:"¡Sí! La calculadora puede funcionar bien aunque le hayas ingresado datos incorrectos y aun así dar un resultado correcto 'de casualidad'."},
+      {q:"Un argumento es SÓLIDO cuando…",ops:["Es válido y además tiene premisas verdaderas","Tiene muchas premisas","La conclusión parece razonable","Es inductivo y probable"],c:0,cat:"Solidez",fb:"SÓLIDO = VÁLIDO + PREMISAS VERDADERAS. Solo un argumento sólido nos garantiza que la conclusión también es verdadera."},
+      {q:"¿Cuál es la diferencia central entre argumento DEDUCTIVO e INDUCTIVO?",ops:["El deductivo es más largo","En el deductivo las premisas garantizan la conclusión; en el inductivo solo la hacen probable","El inductivo usa estadísticas siempre","El deductivo solo aplica a ciencias exactas"],c:1,cat:"Tipos",fb:"Deductivo: si las P son V, la C es NECESARIAMENTE V. Inductivo: las P dan apoyo pero no garantizan la C. La conclusión es más o menos probable, nunca necesaria."},
+      {q:"Falacia de 'afirmación del consecuente': Si estudio, apruebo. Aprobé. Por lo tanto estudié. ¿Este argumento es…?",ops:["Válido","Inválido — pude aprobar por otra razón","Sólido","Inductivo fuerte"],c:1,cat:"Falacias",fb:"Inválido. 'Si estudio→apruebo' solo dice que estudiar es SUFICIENTE para aprobar, no necesario. Podrías haber aprobado sin estudiar."},
+      {q:"Falacia de 'negación del antecedente': Si estudio, apruebo. No estudié. Por lo tanto no aprobé. ¿Este argumento es…?",ops:["Válido","Inválido — pude aprobar igual por otra razón","Sólido","Inductivo fuerte"],c:1,cat:"Falacias",fb:"Inválido. La premisa dice que estudiar es SUFICIENTE para aprobar, no que sea lo ÚNICO que lleva a aprobar."},
+      {q:"Si un argumento es INVÁLIDO, ¿puede tener premisas verdaderas y conclusión verdadera?",ops:["No, nunca","Sí — en un argumento inválido no hay ninguna garantía sobre la relación P–C","Solo si es inductivo","Solo si las premisas son tautologías"],c:1,cat:"Validez",fb:"Sí. En un argumento inválido cualquier combinación de valores de verdad es posible. La invalidez significa que NO hay garantía de transmisión de verdad."},
+      {q:"'Todos los porteños son argentinos. Virginia es porteña. Por lo tanto Virginia es argentina.' Este argumento es…",ops:["Inválido porque habla de personas","Válido pero no sólido","Válido y sólido","Un argumento inductivo fuerte"],c:2,cat:"Solidez",fb:"Es VÁLIDO (estructura garantiza la C si las P son V) y SÓLIDO (las premisas son efectivamente verdaderas). La conclusión es necesariamente V."}
     ]
   },
   {
-    name: "Todo junto + ICSE",
-    questions: [
-      {
-        q: "Según Max Weber (citado por Gómez Talavera), ¿qué define al Estado moderno?",
-        ops: ["La representación democrática de todos los ciudadanos", "El monopolio de la coacción física legítima", "La creación de una identidad nacional común", "La división de poderes en tres ramas"],
-        c: 1,
-        fb: "Para Weber, el Estado moderno se define por el monopolio del uso legítimo de la fuerza física en un territorio. Es lo que distingue al Estado de otras formas de organización."
-      },
-      {
-        q: "Según Valdez, ¿en qué se diferencia la 'Nación' del 'Estado'?",
-        ops: ["La Nación es la estructura jurídica y el Estado es la cultura", "La Nación es una construcción histórica-cultural-identitaria; el Estado es la estructura jurídica y política", "Son exactamente lo mismo", "El Estado es más antiguo que la Nación"],
-        c: 1,
-        fb: "El Estado es la estructura formal (leyes, gobierno, territorio). La Nación es una construcción social, histórica e identitaria: un grupo humano que comparte historia, cultura y sentido de pertenencia."
-      },
-      {
-        q: "Según Sribman Mittelman, el Estado de Bienestar surgió principalmente para…",
-        ops: ["Eliminar la propiedad privada", "Amortiguar las crisis del capitalismo y garantizar derechos sociales básicos", "Reducir el gasto público al máximo", "Fortalecer las fuerzas armadas"],
-        c: 1,
-        fb: "El Estado de Bienestar surge como respuesta a las contradicciones del capitalismo: busca garantizar derechos sociales (salud, educación, vivienda) y amortiguar las crisis económicas."
-      },
-      {
-        q: "Según Yannuzzi, ¿qué NO forma parte de la 'Sociedad Civil'?",
-        ops: ["Los sindicatos", "Los clubes barriales", "El Estado y los partidos políticos en el poder", "Los movimientos sociales"],
-        c: 2,
-        fb: "La Sociedad Civil es el espacio de organización independiente del Estado: sindicatos, ONG, clubes, movimientos. El Estado y los partidos que ejercen el poder son otra esfera."
-      },
-      {
-        q: "¿Qué tipo de enunciado es 'Hay un 70% de probabilidades de lluvia'?",
-        ops: ["Universal", "Singular", "Existencial", "Probabilístico"],
-        c: 3,
-        fb: "Es probabilístico: afirma que algo se da con cierta frecuencia o proporción. Son difíciles de probar tanto en su verdad como en su falsedad."
-      },
-      {
-        q: "El argumento: 'Si los continentes se mueven, debe existir un mecanismo físico. No existe ese mecanismo. Por lo tanto los continentes no se mueven.' ¿Es válido?",
-        ops: ["No, porque la conclusión resultó ser falsa históricamente", "Sí, tiene estructura válida (modus tollens)", "No, le faltan premisas", "Solo sería válido si fuera inductivo"],
-        c: 1,
-        fb: "¡Es válido! Tiene estructura de modus tollens: 'Si P entonces Q. No Q. Por lo tanto no P.' La estructura garantiza la transmisión de verdad. Que históricamente haya resultado con premisa falsa no lo hace inválido — lo hace no sólido."
-      },
-      {
-        q: "'Llueve o no llueve' es…",
-        ops: ["Una contingencia", "Una contradicción", "Una tautología", "Un enunciado probabilístico"],
-        c: 2,
-        fb: "Es una tautología: siempre verdadera por su estructura lógica. Si llueve, el primer disyunto es V y la disyunción es V. Si no llueve, el segundo disyunto es V. No hay escenario donde sea falsa."
-      },
-      {
-        q: "Para evaluar un argumento deductivo, los dos criterios principales son…",
-        ops: ["Longitud y complejidad del texto", "Verdad de las premisas + solidez de la inferencia (validez)", "Originalidad y creatividad del razonamiento", "Cantidad de ejemplos y analogías usadas"],
-        c: 1,
-        fb: "Huacar plantea dos criterios: (1) ¿las premisas son verdaderas/aceptables? y (2) ¿la inferencia es suficiente, la conclusión se sigue necesariamente? Esto es validez + verdad de premisas = solidez."
-      }
+    name:"Argumentos Inductivos", emoji:"📊",
+    questions:[
+      {q:"¿Cuál es la característica fundamental de todos los argumentos inductivos?",ops:["Las premisas garantizan la conclusión de forma necesaria","Las premisas ofrecen razones que apoyan la conclusión, pero no la garantizan","Siempre usan porcentajes y estadísticas","Son siempre más débiles que los deductivos"],c:1,cat:"Inductivo",fb:"En los argumentos inductivos las razones no son concluyentes: la conclusión es probable a la luz de las premisas, pero podría ser falsa aunque las premisas sean verdaderas."},
+      {q:"¿Qué hace un argumento por ANALOGÍA?",ops:["Generaliza a partir de muchos casos observados","A partir de semejanzas relevantes, infiere que un nuevo caso también tendrá otra propiedad compartida","Aplica una estadística a un caso individual","Deduce una conclusión necesaria"],c:1,cat:"Analogía",fb:"Analogía: X1 y X2 comparten F, G, Z. X3 comparte F, G... → X3 también tendrá Z. Se infiere que el NUEVO CASO tendrá la propiedad adicional porque se parece a los demás."},
+      {q:"Cursé ISE con éxito. Cursé Biología con éxito. Ahora curso IPC. Por lo tanto probablemente en IPC también me irá bien. Este argumento es…",ops:["Deductivo válido","Inductivo por analogía","Inductivo por enumeración incompleta","Silogismo inductivo"],c:1,cat:"Analogía",fb:"Es por analogía: los casos anteriores son similares (mismas estrategias) y se infiere que el caso nuevo también tendrá el mismo resultado. No generalizo a 'todos', sino al caso próximo."},
+      {q:"¿Qué hace un argumento por ENUMERACIÓN INCOMPLETA?",ops:["Compara dos casos y transfiere una propiedad","Recoge casos observados en las premisas y GENERALIZA a toda la clase en la conclusión","Aplica una estadística a un individuo","Deduce un caso particular de una ley universal"],c:1,cat:"Enumeración",fb:"Enumeración: 'X1 es Z, X2 es Z, X3 es Z → Todos los X son Z.' Se generaliza más allá de los casos observados. Ej: chimpancé/orangután/capuchino usan herramientas → los primates usan herramientas."},
+      {q:"¿Cuál es la diferencia CLAVE entre analogía y enumeración incompleta?",ops:["En analogía se generaliza a toda la clase; en enumeración se infiere un caso nuevo","En analogía se transfiere una propiedad al caso próximo; en enumeración se generaliza a TODA la clase","Son exactamente lo mismo","La enumeración solo funciona con números"],c:1,cat:"Tipos",fb:"CLAVE: Analogía → infiero que el PRÓXIMO CASO tendrá la propiedad. Enumeración → generalizo a TODA la clase. Lo que delata el tipo es la conclusión: '¿El pomelo tiene vit. C?' vs 'Todos los cítricos tienen vit. C'."},
+      {q:"¿Qué es un SILOGISMO INDUCTIVO?",ops:["Un argumento que enumera muchos casos y generaliza","Un argumento que compara casos similares","Un argumento con una generalización estadística como premisa, aplicada a un caso individual","Un argumento deductivo con premisas probables"],c:2,cat:"Silogismo",fb:"Silogismo inductivo: 'El N% de los F son G. X es F. → X es G (probablemente).' Ej: '90% de adolescentes usa redes. Ele es adolescente. → Probablemente usa redes.'"},
+      {q:"Para FORTALECER un argumento por analogía lo más efectivo es…",ops:["Aumentar la cantidad de conclusiones","Agregar más aspectos RELEVANTES compartidos entre los casos, o más casos comparados","Reemplazar las premisas por tautologías","Usar lenguaje más técnico"],c:1,cat:"Analogía",fb:"Se fortalece con: (1) más semejanzas RELEVANTES y (2) más casos. OJO: compartir qué zapatillas usás para estudiar no fortalece nada — las semejanzas deben ser relevantes."},
+      {q:"Para FORTALECER un argumento por enumeración incompleta lo más efectivo es…",ops:["Cambiar la conclusión a una más débil","Ampliar la muestra y asegurarse de que sea representativa","Agregar una premisa estadística","Convertirlo en argumento deductivo"],c:1,cat:"Enumeración",fb:"Se fortalece ampliando la MUESTRA y asegurando que sea REPRESENTATIVA. Una muestra sesgada (solo de Facebook, solo de Buenos Aires) debilita el argumento."},
+      {q:"Para FORTALECER un silogismo inductivo lo más efectivo es…",ops:["Convertir la premisa estadística a 100% (universal)","Aumentar la frecuencia relativa en la generalización estadística (sin llegar al 100%)","Agregar más casos individuales","Eliminar la generalización estadística"],c:1,cat:"Silogismo",fb:"Se fortalece aumentando el porcentaje/frecuencia relativa de la generalización (sin llegar al 100%, que lo convertiría en deductivo). Más alta la frecuencia → más confianza en la conclusión."},
+      {q:"Para que una muestra sea REPRESENTATIVA en enumeración incompleta, debe…",ops:["Ser muy pequeña para mayor precisión","Incluir solo a expertos en el tema","Permitir que todos los miembros de la población tengan chances de integrarla, sin sesgo","Ser tomada solo de fuentes académicas"],c:2,cat:"Enumeración",fb:"Muestra representativa = sin sesgo. Encuestar solo en Facebook excluye personas sin internet o mayores. Hay que reflejar la diversidad de la población para que la generalización sea válida."},
+      {q:"La naranja, el limón y el pomelo son cítricos y tienen vit. C. El durazno tiene vit. C. El kiwi tiene vit. C. ¿Cuál conclusión hace de esto un argumento por ENUMERACIÓN INCOMPLETA?",ops:["El pomelo tiene vitamina C","La banana tiene vitamina C","Todas las frutas tienen vitamina C","Los cítricos son ácidos"],c:2,cat:"Enumeración",fb:"Enumeración: los casos observados (naranja, limón, pomelo, durazno, kiwi) permiten GENERALIZAR a toda la clase (todas las frutas). La conclusión va más allá de los casos observados."},
+      {q:"'La naranja es cítrica y tiene vit. C. El limón es cítrico y tiene vit. C. El pomelo es cítrico.' ¿Qué conclusión hace de esto un argumento por ANALOGÍA?",ops:["Todos los cítricos tienen vitamina C","El pomelo tiene vitamina C","La naranja, el limón y el pomelo tienen vitamina C","Los cítricos son ácidos"],c:1,cat:"Analogía",fb:"Es analogía porque el pomelo se PARECE a los casos anteriores (también es cítrico) y se infiere que también tendrá la propiedad que comparten. La conclusión habla del caso próximo, no de toda la clase."}
+    ]
+  },
+  {
+    name:"Todo junto + ICSE", emoji:"🏆",
+    questions:[
+      {q:"Según Max Weber (citado por Gómez Talavera), ¿qué define al Estado moderno?",ops:["La representación democrática de todos los ciudadanos","El monopolio de la coacción física legítima","La creación de una identidad nacional","La división de poderes en tres ramas"],c:1,cat:"ICSE",fb:"Para Weber, el Estado moderno se define por el monopolio del uso LEGÍTIMO de la fuerza física en un territorio. Es lo que lo distingue de otras formas de organización."},
+      {q:"Según Valdez, ¿en qué se diferencia la 'Nación' del 'Estado'?",ops:["La Nación es la estructura jurídica y el Estado es la cultura","La Nación es una construcción histórica-cultural-identitaria; el Estado es la estructura jurídica y política","Son exactamente lo mismo","El Estado es siempre más antiguo que la Nación"],c:1,cat:"ICSE",fb:"El Estado es la estructura formal (leyes, gobierno, territorio). La Nación es una construcción histórica e identitaria: un grupo que comparte historia, cultura y sentido de pertenencia."},
+      {q:"Según Sribman Mittelman, el Estado de Bienestar surgió principalmente para…",ops:["Eliminar la propiedad privada","Amortiguar las crisis del capitalismo y garantizar derechos sociales","Reducir el gasto público al máximo","Fortalecer las fuerzas armadas"],c:1,cat:"ICSE",fb:"El Estado de Bienestar surge para garantizar derechos sociales (salud, educación, vivienda) y amortiguar las crisis económicas propias del capitalismo."},
+      {q:"Según Yannuzzi, ¿qué NO forma parte de la 'Sociedad Civil'?",ops:["Los sindicatos","Los clubes barriales","El Estado y los partidos políticos en el poder","Los movimientos sociales"],c:2,cat:"ICSE",fb:"La Sociedad Civil es el espacio de organización INDEPENDIENTE del Estado: sindicatos, ONG, clubes, movimientos. El Estado y los partidos que ejercen el poder son otra esfera."},
+      {q:"¿Cuál de estos es un argumento inductivo por ANALOGÍA?",ops:["Todos los metales se dilatan. El cobre es metal. El cobre se dilata.","Cursé Química y me fue bien con las mismas estrategias. Ahora curso IPC. Probablemente me vaya bien.","Encuesto a 1000 personas y generalizo a toda la provincia.","El 70% de los estudiantes aprueba. Lucas es estudiante. Lucas probablemente apruebe."],c:1,cat:"Tipos",fb:"El ejemplo de las materias es por analogía: comparo casos previos semejantes (mismas estrategias) e infiero que el caso nuevo también tendrá el mismo resultado. No generalizo a 'todos'."},
+      {q:"¿Cuál de estos es un argumento inductivo por ENUMERACIÓN INCOMPLETA?",ops:["Cursé Química y me fue bien. Curso IPC. Probablemente me vaya bien.","El chimpancé usa herramientas. El orangután usa herramientas. El capuchino usa herramientas. → Los primates usan herramientas.","El 90% de estudiantes usa celular. Lucía es estudiante. Lucía probablemente usa celular.","Todos los mamíferos tienen corazón. Baleia es mamífero. Baleia tiene corazón."],c:1,cat:"Tipos",fb:"Es enumeración: recoge casos observados (chimpancé, orangután, capuchino) y generaliza a TODA la clase (los primates)."},
+      {q:"¿Cuál de estos es un SILOGISMO INDUCTIVO?",ops:["Estudié y aprobé. Estudié IPC. Probablemente apruebe IPC.","Todos los mamíferos tienen pulmones. El delfín es mamífero. El delfín tiene pulmones.","El 85% de los peces abisales son bioluminiscentes. El rape es pez abisal. Probablemente el rape sea bioluminiscente.","Jill habla inglés. Mike habla inglés. → Todos los estadounidenses hablan inglés."],c:2,cat:"Tipos",fb:"Es silogismo inductivo: tiene una GENERALIZACIÓN ESTADÍSTICA como premisa (85%), se subsume un caso individual (el rape), y se infiere que probablemente tenga esa propiedad."},
+      {q:"El argumento 'Si los continentes se mueven, debe existir un mecanismo físico. No existe ese mecanismo. Por lo tanto los continentes no se mueven.' ¿Es válido?",ops:["No, porque la conclusión resultó falsa históricamente","Sí, tiene estructura válida (modus tollens)","No, le faltan premisas","Solo sería válido si fuera inductivo"],c:1,cat:"Validez",fb:"¡Es válido! Estructura modus tollens: 'Si P entonces Q. No Q. Por lo tanto no P.' Que históricamente resultara con premisa falsa lo hace NO SÓLIDO, pero la estructura es válida."},
+      {q:"'Llueve o no llueve' es…",ops:["Una contingencia","Una contradicción","Una tautología","Un enunciado probabilístico"],c:2,cat:"Modalidad",fb:"Es una tautología: siempre V por estructura lógica. Si llueve: primer disyunto V. Si no llueve: segundo disyunto V. No hay escenario donde sea falsa."},
+      {q:"Para evaluar un argumento —ya sea deductivo o inductivo— los dos criterios generales son…",ops:["Longitud y complejidad","(1) Verdad/aceptabilidad de las premisas + (2) Suficiencia de la inferencia","Originalidad y creatividad","Cantidad de ejemplos usados"],c:1,cat:"Evaluación",fb:"Huacar plantea dos criterios generales: (1) ¿las premisas son verdaderas/aceptables? y (2) ¿la inferencia es suficiente? Para deductivos: validez. Para inductivos: fuerza/probabilidad."}
     ]
   }
 ];
 
-/* ═══════════════════════════════════════════
-   CONCEPTOS PARA REPASO RÁPIDO
-═══════════════════════════════════════════ */
+/* ═════════════════════════════════
+   CONCEPTOS — REPASO RÁPIDO
+═════════════════════════════════ */
 const CONCEPTS = [
-  { term: "Argumento", chip: "Reconocimiento", def: "Conjunto de enunciados con una estructura: premisas (razones) y una conclusión (lo que se infiere). No todo conjunto de enunciados es un argumento.", example: "'Las tres universidades más antiguas son... Por lo tanto la UNC es la más antigua.' → hay premisas y una conclusión." },
-  { term: "Enunciado", chip: "Reconocimiento", def: "Oración que afirma o niega algo, y por lo tanto puede ser verdadera o falsa. Las preguntas, órdenes y pedidos NO son enunciados.", example: "'La clase comienza a las 8' ✓ enunciado. '¿Podés traer mate?' ✗ no es enunciado." },
-  { term: "Premisa", chip: "Reconocimiento", def: "Razón o evidencia que se ofrece para apoyar la conclusión. Indicadores: 'dado que', 'puesto que', 'porque', 'pues'.", example: "'Dado que llueve, el piso está mojado' → 'llueve' es la premisa." },
-  { term: "Conclusión", chip: "Reconocimiento", def: "Lo que se infiere o defiende a partir de las premisas. Siempre hay una sola. Indicadores: 'por lo tanto', 'luego', 'en consecuencia', 'se sigue que'.", example: "Puede aparecer al principio, al medio o al final del texto." },
-  { term: "Negación", chip: "Enunciados", def: "Enunciado complejo que niega otro. Verdadera cuando el enunciado negado es falso. Partículas: 'no', 'des-', 'in-', 'no es el caso que'.", example: "'Federico no está en el aula' es verdadera cuando sí está → falso." },
-  { term: "Conjunción", chip: "Enunciados", def: "Combina dos enunciados con 'y', 'pero', 'además'. Verdadera SOLO cuando AMBOS son verdaderos.", example: "'Josefina y Eliseo están en el aula' → falsa si falta cualquiera." },
-  { term: "Disyunción inclusiva", chip: "Enunciados", def: "Combina con 'o'. Verdadera cuando AL MENOS UNO de los disyuntos es verdadero (incluso si ambos lo son).", example: "'Emilia o Ulises van a traer mate' → verdadera aunque traigan los dos." },
-  { term: "Condicional", chip: "Enunciados", def: "'Si P, entonces Q'. Falso SOLO cuando el antecedente (P) es verdadero y el consecuente (Q) es falso. Todas las otras combinaciones son verdaderas.", example: "'Si llueve, me quedo' → falso solo si llueve y salgo igual." },
-  { term: "Tautología", chip: "Modalidad", def: "Enunciado necesariamente VERDADERO por su estructura lógica. No importa cómo sea el mundo.", example: "'Hoy es viernes o no lo es' — siempre verdadero." },
-  { term: "Contradicción", chip: "Modalidad", def: "Enunciado necesariamente FALSO por su estructura lógica.", example: "'Hace frío y no hace frío' — imposible que sea verdadero." },
-  { term: "Contingencia", chip: "Modalidad", def: "Enunciado que puede ser verdadero o falso dependiendo del mundo. La mayoría de los enunciados son contingencias.", example: "'Hoy es lunes' — verdadero o falso según el día." },
-  { term: "Validez", chip: "Evaluación", def: "Un argumento deductivo es VÁLIDO cuando es imposible que las premisas sean verdaderas y la conclusión falsa. La estructura garantiza la transmisión de verdad.", example: "'Todos los gatos son mamíferos. Michi es gato. Por lo tanto Michi es mamífero.' → válido." },
-  { term: "Solidez", chip: "Evaluación", def: "Un argumento es SÓLIDO cuando es VÁLIDO y además tiene PREMISAS VERDADERAS. Solo entonces garantiza conclusión verdadera.", example: "Válido + premisas V = sólido → conclusión necesariamente V." },
-  { term: "Falacias clásicas", chip: "Evaluación", def: "AFIRMACIÓN DEL CONSECUENTE: 'Si P entonces Q. Q. Por lo tanto P.' (inválido). NEGACIÓN DEL ANTECEDENTE: 'Si P entonces Q. No P. Por lo tanto no Q.' (inválido).", example: "La primera premisa solo dice que P es suficiente para Q, no que sea el único camino." },
+  {term:"Argumento",chip:"Reconocimiento",def:"Conjunto de enunciados con estructura: premisas (razones) y una conclusión (lo que se infiere). No todo conjunto de enunciados es argumento.",ex:"'Dado que llueve, el piso está mojado. Por lo tanto conviene llevar paraguas.'"},
+  {term:"Enunciado",chip:"Reconocimiento",def:"Oración que afirma o niega algo, puede ser V o F. Preguntas, órdenes y pedidos NO son enunciados.",ex:"'La clase comienza a las 8' ✓ enunciado. '¿Podés traer mate?' ✗ no es enunciado."},
+  {term:"Premisa y Conclusión",chip:"Reconocimiento",def:"Premisa = razón. Indicadores: 'dado que', 'puesto que', 'porque'. Conclusión = lo que se infiere (ÚNICA). Indicadores: 'por lo tanto', 'luego', 'en consecuencia'. Puede aparecer al inicio, al medio o al final.",ex:"El texto NO tiene que tener la conclusión al final. ¡Ojo con eso!"},
+  {term:"Negación / Conjunción / Disyunción",chip:"Enunciados",def:"Negación ('no'): V cuando el enunciado negado es F. Conjunción ('y'): V solo cuando AMBOS son V. Disyunción inclusiva ('o'): V cuando AL MENOS UNO es V.",ex:"'Josefina Y Eliseo están' → F si falta uno. 'Emilia O Ulises traen mate' → V aunque traigan los dos."},
+  {term:"Condicional",chip:"Enunciados",def:"'Si P, entonces Q'. FALSO solo cuando P es V y Q es F. Todas las otras combinaciones son verdaderas.",ex:"'Si llueve, me quedo' → falso SOLO si llueve y salgo igual."},
+  {term:"Tautología / Contradicción / Contingencia",chip:"Enunciados",def:"Tautología: necesariamente V por estructura lógica ('hoy es viernes o no'). Contradicción: necesariamente F ('hace frío y no hace frío'). Contingencia: depende del mundo ('hoy es lunes').",ex:"La mayoría de los enunciados cotidianos son contingencias."},
+  {term:"Validez y Solidez",chip:"Evaluación",def:"VÁLIDO: imposible que P sean V y C sea F. SÓLIDO: válido + premisas verdaderas → garantiza conclusión V. Analogía: calculadora que funciona bien (válido) + datos correctos (sólido).",ex:"Un argumento válido con P falsas puede tener C verdadera 'de casualidad'."},
+  {term:"Falacias clásicas",chip:"Evaluación",def:"AFIRMACIÓN DEL CONSECUENTE: 'Si P→Q. Q. ∴ P.' (inválido). NEGACIÓN DEL ANTECEDENTE: 'Si P→Q. ¬P. ∴ ¬Q.' (inválido). La premisa solo dice que P es SUFICIENTE para Q, no necesario.",ex:"'Si estudio apruebo. Aprobé. ∴ estudié' → podría haber aprobado sin estudiar."},
+  {term:"Argumentos Inductivos — Panorama",chip:"Inductivo",def:"En los inductivos las razones NO son concluyentes. Se habla de argumentos FUERTES o DÉBILES (no válidos/inválidos). Hay 3 tipos: (1) Por analogía, (2) Por enumeración incompleta, (3) Silogismo inductivo.",ex:"A diferencia de los deductivos, la estructura sola no alcanza para evaluar inductivos — hay que ver el contenido."},
+  {term:"Argumento por ANALOGÍA",chip:"Inductivo",def:"Compara casos en aspectos relevantes e infiere que el CASO PRÓXIMO también tendrá otra propiedad compartida. Se fortalece con más semejanzas relevantes y más casos. Las semejanzas deben ser relevantes (no sirve compartir qué zapatillas usás).",ex:"ISE y Biología me salieron bien con las mismas estrategias → IPC también me irá bien."},
+  {term:"Argumento por ENUMERACIÓN INCOMPLETA",chip:"Inductivo",def:"Observa casos y generaliza a TODA la clase. Se fortalece con muestra más amplia y REPRESENTATIVA (sin sesgo). Una muestra solo de Facebook no es representativa.",ex:"Chimpancé, orangután, capuchino usan herramientas → TODOS los primates usan herramientas."},
+  {term:"Silogismo INDUCTIVO",chip:"Inductivo",def:"Generalización estadística + caso individual → conclusión probable. Se fortalece aumentando la frecuencia relativa (SIN llegar al 100%, que lo haría deductivo).",ex:"'El 90% de adolescentes usa redes. Ele es adolescente. → Probablemente usa redes.'"},
+  {term:"Estado, Nación y Sociedad Civil",chip:"ICSE",def:"Estado (Weber): monopolio de la coacción física LEGÍTIMA. Nación (Valdez): construcción histórica-cultural-identitaria. Sociedad Civil (Yannuzzi): espacio independiente del Estado (sindicatos, ONG, clubes, movimientos). Estado de Bienestar (Sribman): garantiza derechos sociales para amortiguar crisis del capitalismo.",ex:"Estado ≠ Nación: pueden existir sin el otro (naciones sin Estado, Estados multinacionales)."},
 ];
 
-/* ═══════════════════════════════════════════
-   ESTADO DEL JUEGO
-═══════════════════════════════════════════ */
-let state = {
-  mode: 'trivia',
-  selectedLevel: -1,
-  questions: [],
-  currentQ: 0,
-  score: 0,
-  streak: 0,
-  maxStreak: 0,
-  correctCount: 0,
-  answered: false
-};
+/* ═════════════════════════════════
+   ESTADO
+═════════════════════════════════ */
+let state = {mode:'trivia',selectedLevel:-1,questions:[],currentQ:0,score:0,streak:0,maxStreak:0,correctCount:0,answered:false,isExamMode:false};
 
-/* ═══════════════════════════════════════════
+/* ═════════════════════════════════
    HOME
-═══════════════════════════════════════════ */
+═════════════════════════════════ */
 function setMode(m) {
   state.mode = m;
-  document.getElementById('modeTrivia').classList.toggle('active', m === 'trivia');
-  document.getElementById('modeStudy').classList.toggle('active', m === 'study');
-  document.getElementById('triviaSection').style.display = m === 'trivia' ? '' : 'none';
-  document.getElementById('studySection').style.display = m === 'study' ? '' : 'none';
-  if (m === 'study') buildStudyCards();
+  [['trivia','Trivia'],['study','Study'],['exam','Exam']].forEach(([id,cap])=>{
+    document.getElementById('mode'+cap+'Btn').classList.toggle('active', m===id);
+    document.getElementById(id+'Section').style.display = m===id ? '' : 'none';
+  });
+  if(m==='study') buildStudyCards('all');
 }
-
-function buildStudyCards() {
+function buildStudyCards(filter) {
   const c = document.getElementById('studyCards');
-  c.innerHTML = CONCEPTS.map(con => `
-    <div class="study-card">
-      <div class="chip">${con.chip}</div>
-      <div class="term">${con.term}</div>
-      <div class="def">${con.def}</div>
-      <div class="example">${con.example}</div>
-    </div>
-  `).join('');
+  const list = filter==='all' ? CONCEPTS : CONCEPTS.filter(x=>x.chip===filter);
+  c.innerHTML = list.map(con=>`<div class="study-card"><div class="chip ${con.chip==='Inductivo'?'inductivo':con.chip==='Evaluación'?'evaluacion':con.chip==='ICSE'?'icse':''}">${con.chip}</div><div class="term">${con.term}</div><div class="def">${con.def}</div><div class="example">${con.ex}</div></div>`).join('');
 }
-
+function filterStudy(f,btn) {
+  document.querySelectorAll('.topic-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildStudyCards(f);
+}
 function selectLevel(idx) {
   state.selectedLevel = idx;
-  document.querySelectorAll('.level-card').forEach((c, i) => c.classList.toggle('selected', i === idx));
+  document.querySelectorAll('.level-card').forEach((c,i)=>c.classList.toggle('selected',i===idx));
   const btn = document.getElementById('startBtn');
   btn.disabled = false;
-  btn.textContent = `Empezar "${LEVELS[idx].name}"`;
+  btn.textContent = `Empezar "${LEVELS[idx].name}" →`;
 }
-
 function startQuiz() {
-  if (state.selectedLevel < 0) return;
+  if(state.selectedLevel<0) return;
   state.questions = shuffle([...LEVELS[state.selectedLevel].questions]);
-  state.currentQ = 0;
-  state.score = 0;
-  state.streak = 0;
-  state.maxStreak = 0;
-  state.correctCount = 0;
-  showScreen('quiz');
-  renderQuestion();
+  state.currentQ=0; state.score=0; state.streak=0; state.maxStreak=0; state.correctCount=0; state.isExamMode=false;
+  showScreen('quiz'); renderQuestion();
+}
+function startExamMode() {
+  let pool = [];
+  LEVELS.forEach(lv=>{ const s=shuffle([...lv.questions]); pool=pool.concat(s.slice(0,4)); });
+  state.questions = shuffle(pool);
+  state.currentQ=0; state.score=0; state.streak=0; state.maxStreak=0; state.correctCount=0; state.isExamMode=true; state.selectedLevel=-1;
+  showScreen('quiz'); renderQuestion();
 }
 
-/* ═══════════════════════════════════════════
+/* ═════════════════════════════════
    QUIZ
-═══════════════════════════════════════════ */
+═════════════════════════════════ */
 function renderQuestion() {
-  const total = state.questions.length;
-  const i = state.currentQ;
-  const q = state.questions[i];
-  state.answered = false;
-
-  document.getElementById('quizMeta').textContent = `${LEVELS[state.selectedLevel].name} · Pregunta ${i+1} de ${total}`;
-  document.getElementById('quizScore').textContent = `${state.score} pts`;
-  document.getElementById('progressFill').style.width = `${(i / total) * 100}%`;
-  document.getElementById('qLabel').textContent = `Pregunta ${i+1}`;
-  document.getElementById('qText').textContent = q.q;
+  const total=state.questions.length, i=state.currentQ, q=state.questions[i];
+  state.answered=false;
+  document.getElementById('quizMeta').textContent=`Pregunta ${i+1} de ${total}`;
+  document.getElementById('quizLevelName').textContent=state.isExamMode?'🎯 Simulacro de examen':LEVELS[state.selectedLevel].name;
+  document.getElementById('quizScore').textContent=`${state.score} pts`;
+  document.getElementById('progressFill').style.width=`${(i/total)*100}%`;
+  document.getElementById('qCategory').textContent=q.cat||'Pregunta';
+  document.getElementById('qText').textContent=q.q;
   updateStreakBar();
-
-  const letters = ['A', 'B', 'C', 'D'];
-  const container = document.getElementById('optionsContainer');
-  container.innerHTML = '';
-  q.ops.forEach((op, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn';
-    btn.innerHTML = `<span class="opt-letter">${letters[idx]}</span><span>${op}</span>`;
-    btn.onclick = () => handleAnswer(idx, btn);
+  const letters=['A','B','C','D'];
+  const container=document.getElementById('optionsContainer');
+  container.innerHTML='';
+  q.ops.forEach((op,idx)=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn';
+    btn.innerHTML=`<span class="opt-letter">${letters[idx]}</span><span>${op}</span>`;
+    btn.onclick=()=>handleAnswer(idx,btn);
     container.appendChild(btn);
   });
-
-  const fb = document.getElementById('feedbackBox');
-  fb.className = 'feedback-box';
-  document.getElementById('nextBtn').className = 'btn-next';
+  document.getElementById('feedbackBox').className='feedback-box';
+  document.getElementById('nextBtn').className='btn-next';
 }
-
-function handleAnswer(chosen, btn) {
-  if (state.answered) return;
-  state.answered = true;
-  const q = state.questions[state.currentQ];
-  const allBtns = document.querySelectorAll('.opt-btn');
-  allBtns.forEach(b => b.disabled = true);
-
-  const correct = chosen === q.c;
-  if (correct) {
+function handleAnswer(chosen,btn) {
+  if(state.answered) return;
+  state.answered=true;
+  const q=state.questions[state.currentQ];
+  const allBtns=document.querySelectorAll('.opt-btn');
+  allBtns.forEach(b=>b.disabled=true);
+  const correct=chosen===q.c;
+  if(correct) {
     btn.classList.add('correct');
-    const pts = 10 + (state.streak >= 2 ? 5 : 0);
-    state.score += pts;
-    state.streak++;
-    state.maxStreak = Math.max(state.maxStreak, state.streak);
-    state.correctCount++;
+    const bonus=state.streak>=2?5:0;
+    state.score+=10+bonus; state.streak++; state.maxStreak=Math.max(state.maxStreak,state.streak); state.correctCount++;
   } else {
-    btn.classList.add('wrong');
-    allBtns[q.c].classList.add('show-correct');
-    state.streak = 0;
+    btn.classList.add('wrong'); allBtns[q.c].classList.add('show-correct'); state.streak=0;
   }
   updateStreakBar();
-  document.getElementById('quizScore').textContent = `${state.score} pts`;
-
-  const fb = document.getElementById('feedbackBox');
-  const fbTitle = document.getElementById('fbTitle');
-  const fbText = document.getElementById('fbText');
-  if (correct) {
-    fb.className = 'feedback-box visible';
-    fbTitle.textContent = state.streak >= 2 ? `¡Racha de ${state.streak}! +${10 + 5} pts 🔥` : '¡Correcto! +10 pts ✓';
-  } else {
-    fb.className = 'feedback-box visible wrong-fb';
-    fbTitle.textContent = 'No exactamente…';
+  document.getElementById('quizScore').textContent=`${state.score} pts`;
+  if(!state.isExamMode) {
+    const fb=document.getElementById('feedbackBox');
+    document.getElementById('fbText').textContent=q.fb;
+    if(correct) { fb.className='feedback-box visible'; document.getElementById('fbTitle').textContent=state.streak>=2?`¡Racha de ${state.streak}! +15 pts 🔥`:'¡Correcto! +10 pts ✓'; }
+    else { fb.className='feedback-box visible wrong-fb'; document.getElementById('fbTitle').textContent='📌 Para tener en cuenta:'; }
   }
-  fbText.textContent = q.fb;
-
-  document.getElementById('nextBtn').className = 'btn-next visible';
-  document.getElementById('nextBtn').textContent = state.currentQ < state.questions.length - 1 ? 'Siguiente →' : 'Ver resultados →';
+  const nb=document.getElementById('nextBtn');
+  nb.className='btn-next visible';
+  nb.textContent=state.currentQ<state.questions.length-1?'Siguiente →':'Ver resultados →';
 }
-
 function nextQuestion() {
   state.currentQ++;
-  if (state.currentQ >= state.questions.length) {
-    showResults();
-  } else {
-    renderQuestion();
-  }
+  if(state.currentQ>=state.questions.length) showResults();
+  else renderQuestion();
 }
-
 function updateStreakBar() {
-  const bar = document.getElementById('streakBar');
-  if (state.streak >= 2) {
-    bar.textContent = `🔥 Racha de ${state.streak} correctas`;
-  } else {
-    bar.textContent = '';
-  }
+  document.getElementById('streakBar').textContent=state.streak>=2?`🔥 Racha de ${state.streak} correctas consecutivas`:'';
 }
 
-/* ═══════════════════════════════════════════
+/* ═════════════════════════════════
    RESULTS
-═══════════════════════════════════════════ */
+═════════════════════════════════ */
 function showResults() {
   showScreen('results');
-  const total = state.questions.length;
-  const pct = Math.round((state.correctCount / total) * 100);
-  document.getElementById('resultsRing').style.setProperty('--pct', `${pct * 3.6}deg`);
-  document.getElementById('ringLabel').textContent = `${pct}%`;
-
-  let title, sub;
-  if (pct === 100) { title = '¡Perfecto! 🎉'; sub = 'Dominás este tema completamente. Seguí así para el 16 de abril.'; }
-  else if (pct >= 75) { title = '¡Muy bien! 💪'; sub = 'Estás cerca. Repasá los que erraste y volvé a intentar.'; }
-  else if (pct >= 50) { title = 'Vamos bien 🧠'; sub = 'La mitad ya la tenés. Chequeá el modo Repaso para reforzar.'; }
-  else { title = 'A seguir estudiando 📚'; sub = 'Usá el modo Repaso para repasar los conceptos antes de intentar de nuevo.'; }
-
-  document.getElementById('resultsTitle').textContent = title;
-  document.getElementById('resultsSub').textContent = sub;
-  document.getElementById('resultsBreakdown').innerHTML = `
+  const total=state.questions.length, pct=Math.round((state.correctCount/total)*100);
+  document.getElementById('resultsRing').style.setProperty('--pct',`${pct*3.6}deg`);
+  document.getElementById('ringLabel').textContent=`${pct}%`;
+  let title,sub;
+  if(pct===100){title='¡Perfecto! 🎉';sub='Dominás este tema al 100%. Seguí así para el 16 de abril — vas a llegar sobrando.';}
+  else if(pct>=80){title='¡Muy bien! 💪';sub='Estás muy cerca. Repasá lo que erraste con el modo Repaso y pegale otra vuelta.';}
+  else if(pct>=60){title='Vamos bien 🧠';sub='Ya tenés la base. Reforzá lo que te falta y volvé a intentar.';}
+  else if(pct>=40){title='Hay que seguir estudiando 📚';sub='No te preocupes, aún hay tiempo. Chequeá el modo Repaso antes de reintentar.';}
+  else{title='Arranquemos de cero 🔄';sub='Lo mejor es ir al modo Repaso, leer los conceptos y después volver a practicar.';}
+  document.getElementById('resultsTitle').textContent=title;
+  document.getElementById('resultsSub').textContent=sub;
+  document.getElementById('resultsBreakdown').innerHTML=`
     <div class="breakdown-item"><span><span class="breakdown-icon">✅</span>Correctas</span><span class="breakdown-val">${state.correctCount} / ${total}</span></div>
-    <div class="breakdown-item"><span><span class="breakdown-icon">⭐</span>Puntaje</span><span class="breakdown-val">${state.score} pts</span></div>
+    <div class="breakdown-item"><span><span class="breakdown-icon">⭐</span>Puntaje total</span><span class="breakdown-val">${state.score} pts</span></div>
     <div class="breakdown-item"><span><span class="breakdown-icon">🔥</span>Mejor racha</span><span class="breakdown-val">${state.maxStreak} seguidas</span></div>
     <div class="breakdown-item"><span><span class="breakdown-icon">📊</span>Resultado</span><span class="breakdown-val">${pct}%</span></div>
+    ${state.isExamMode?'<div class="breakdown-item"><span><span class="breakdown-icon">🎯</span>Modo</span><span class="breakdown-val">Simulacro examen</span></div>':''}
   `;
 }
+function retryLevel(){if(state.isExamMode)startExamMode();else startQuiz();}
+function goHome(){showScreen('home');}
 
-function retryLevel() { startQuiz(); }
-function goHome() { showScreen('home'); }
-
-/* ═══════════════════════════════════════════
+/* ═════════════════════════════════
    UTILS
-═══════════════════════════════════════════ */
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
+═════════════════════════════════ */
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
 </script>
 </body>
 </html>
