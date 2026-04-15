@@ -3,479 +3,1082 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPC Trivia – UBA XXI</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<title>IPC — Parcial 1 · UBA XXI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0d0f1a;--surface:#161929;--card:#1e2235;--border:#2a2f4a;
-  --accent:#7c6af7;--accent2:#f7c16a;--accent3:#4ef0c0;
-  --text:#e8eaf6;--muted:#8a8fbb;--correct:#4ef0c0;--wrong:#f75a5a;
-  --radius:14px;--fh:'Syne',sans-serif;--fb:'Space Grotesk',sans-serif;
+  --bg:#0a0c10;--s1:#111420;--s2:#181d2e;--card:#1c2135;--border:#252d45;
+  --accent:#f5a623;--a2:#4ecdc4;--a3:#c678dd;--a4:#e06c75;
+  --text:#e8ecf8;--muted:#6b7595;--ok:#4ecdc4;--err:#e06c75;
+  --r:12px;--ff:'DM Sans',sans-serif;--fh:'Fraunces',serif;--fm:'DM Mono',monospace;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden;padding:20px;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(124,106,247,.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(78,240,192,.08) 0%,transparent 60%);pointer-events:none;}
-.screen{display:none;width:100%;max-width:680px;animation:fadeUp .4s ease;}
-.screen.active{display:block;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-#home{text-align:center;}
-.logo{font-family:var(--fh);font-size:11px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:10px;}
-h1{font-family:var(--fh);font-size:clamp(1.8rem,5.5vw,2.9rem);line-height:1.1;margin-bottom:6px;}
-h1 span{color:var(--accent2);}
-.subtitle{color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.5;}
-.exam-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(247,193,106,.12);border:1px solid rgba(247,193,106,.3);color:var(--accent2);border-radius:20px;font-size:12px;padding:5px 14px;margin-bottom:20px;font-weight:600;}
-.mode-toggle{display:flex;gap:7px;margin-bottom:20px;justify-content:center;flex-wrap:wrap;}
-.mode-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:7px 15px;border-radius:50px;font-size:12px;cursor:pointer;font-family:var(--fb);transition:all .2s;}
-.mode-btn.active{background:rgba(124,106,247,.15);border-color:var(--accent);color:var(--text);}
-.levels-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
-.level-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:15px 13px;cursor:pointer;transition:all .2s;text-align:left;position:relative;overflow:hidden;}
-.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .2s;}
-.level-card:hover::before,.level-card.sel::before{transform:scaleX(1);}
-.level-card:hover{border-color:var(--accent);background:#222640;transform:translateY(-2px);}
-.level-card.sel{border-color:var(--accent);background:rgba(124,106,247,.12);}
-.level-card.hl::before{background:var(--accent2);}
-.level-card.hl:hover,.level-card.hl.sel{border-color:var(--accent2);}
-.level-card.hl.sel{background:rgba(247,193,106,.1);}
-.level-card.green::before{background:var(--accent3);}
-.level-card.green:hover,.level-card.green.sel{border-color:var(--accent3);}
-.level-card.green.sel{background:rgba(78,240,192,.08);}
-.lnum{font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
-.level-card.hl .lnum{color:var(--accent2);}
-.level-card.green .lnum{color:var(--accent3);}
-.ltitle{font-family:var(--fh);font-size:13px;font-weight:700;margin-bottom:2px;}
-.ldesc{font-size:11px;color:var(--muted);line-height:1.4;}
-.lbadge{position:absolute;top:9px;right:9px;font-size:15px;}
-.new-tag{position:absolute;top:9px;right:9px;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:1px;}
-.new-tag.gold{background:var(--accent2);color:#0d0f1a;}
-.new-tag.teal{background:var(--accent3);color:#0d0f1a;}
-.btn-primary{background:var(--accent);color:white;border:none;padding:13px 32px;font-size:14px;font-weight:700;font-family:var(--fb);border-radius:50px;cursor:pointer;transition:all .2s;}
-.btn-primary:hover{background:#9585f9;transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,106,247,.35);}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
-.btn-primary.gold{background:var(--accent2);color:#0d0f1a;}
-.btn-primary.gold:hover{background:#f9cc7e;box-shadow:0 8px 24px rgba(247,193,106,.35);}
-.exam-mode-card{background:linear-gradient(135deg,rgba(247,193,106,.08),rgba(124,106,247,.08));border:1.5px solid rgba(247,193,106,.25);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;text-align:left;}
-.exam-mode-title{font-family:var(--fh);font-size:14px;color:var(--accent2);margin-bottom:3px;}
-.exam-mode-desc{font-size:12px;color:var(--muted);line-height:1.5;}
-.quiz-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px;}
-.quiz-meta-top{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.quiz-level-name{font-size:12px;color:var(--text);font-weight:600;margin-top:2px;}
-.quiz-score{font-family:var(--fh);font-size:18px;color:var(--accent2);font-weight:700;white-space:nowrap;}
-.progress-bar{height:4px;background:var(--border);border-radius:2px;margin-bottom:8px;}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;transition:width .4s;}
-.streak-bar{font-size:12px;color:var(--accent2);text-align:center;height:20px;margin-bottom:10px;font-weight:600;}
-.review-banner{background:rgba(247,193,106,.1);border:1.5px solid rgba(247,193,106,.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent2);font-weight:600;display:none;align-items:center;gap:10px;}
-.review-banner.show{display:flex;animation:fadeUp .3s;}
-.rbtxt{flex:1;}
-.timer-wrap{display:flex;align-items:center;gap:6px;}
-.tring{width:30px;height:30px;flex-shrink:0;}
-.tring circle{fill:none;stroke:var(--border);stroke-width:3;}
-.tring .arc{stroke:var(--accent2);stroke-width:3;stroke-linecap:round;stroke-dasharray:88;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .9s linear;}
-.tnum{font-family:var(--fh);font-size:16px;color:var(--accent2);min-width:28px;text-align:right;}
-.question-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:13px;position:relative;}
-.qcat{display:inline-flex;align-items:center;font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;background:rgba(124,106,247,.12);border-radius:20px;padding:2px 9px;margin-bottom:10px;}
-.qtext{font-size:15px;line-height:1.65;font-weight:500;}
-.review-tag{position:absolute;top:10px;right:12px;background:rgba(247,90,90,.15);color:var(--wrong);border:1px solid rgba(247,90,90,.3);border-radius:20px;font-size:9px;padding:2px 8px;font-weight:700;letter-spacing:1px;display:none;}
-.review-tag.show{display:block;}
-.options{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
-.opt-btn{background:var(--card);border:1.5px solid var(--border);color:var(--text);padding:11px 14px;border-radius:var(--radius);font-size:13.5px;font-family:var(--fb);cursor:pointer;text-align:left;transition:all .18s;line-height:1.4;display:flex;align-items:flex-start;gap:10px;}
-.opt-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(124,106,247,.1);}
-.oletter{background:var(--border);color:var(--muted);border-radius:6px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;transition:all .18s;}
-.opt-btn:hover:not(:disabled) .oletter{background:var(--accent);color:white;}
-.opt-btn.correct{border-color:var(--correct);background:rgba(78,240,192,.1);}
-.opt-btn.correct .oletter{background:var(--correct);color:#0d0f1a;}
-.opt-btn.wrong{border-color:var(--wrong);background:rgba(247,90,90,.1);}
-.opt-btn.wrong .oletter{background:var(--wrong);color:white;}
-.opt-btn.show-correct{border-color:var(--correct);background:rgba(78,240,192,.07);}
-.opt-btn:disabled{cursor:default;}
-.feedback-box{background:var(--surface);border-left:3px solid var(--accent3);border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.65;color:var(--text);margin-bottom:13px;display:none;}
-.feedback-box.show{display:block;animation:fadeUp .3s;}
-.fbtitle{font-weight:700;color:var(--accent3);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
-.feedback-box.wfb{border-left-color:var(--accent2);}
-.feedback-box.wfb .fbtitle{color:var(--accent2);}
-.sched-badge{display:inline-flex;align-items:center;gap:5px;border-radius:20px;font-size:11px;padding:4px 11px;font-weight:700;margin-top:8px;}
-.sched-badge.soon{background:rgba(247,90,90,.15);color:var(--wrong);border:1px solid rgba(247,90,90,.3);}
-.sched-badge.ok{background:rgba(78,240,192,.12);color:var(--correct);border:1px solid rgba(78,240,192,.3);}
-.sched-badge.good{background:rgba(124,106,247,.12);color:var(--accent);border:1px solid rgba(124,106,247,.3);}
-.btn-next{background:transparent;border:1.5px solid var(--accent);color:var(--accent);padding:11px 22px;border-radius:50px;font-size:13px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:all .2s;display:none;}
-.btn-next.show{display:inline-flex;align-items:center;gap:7px;}
-.btn-next:hover{background:var(--accent);color:white;}
-#results{text-align:center;}
-.results-ring{width:120px;height:120px;border-radius:50%;background:conic-gradient(var(--accent) var(--pct),var(--border) 0);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;position:relative;}
-.results-ring::after{content:'';width:96px;height:96px;background:var(--bg);border-radius:50%;position:absolute;}
-.ring-label{position:relative;z-index:1;font-family:var(--fh);font-size:26px;font-weight:800;color:var(--accent);}
-.rtitle{font-family:var(--fh);font-size:22px;margin-bottom:5px;}
-.rsub{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.5;}
-.rbreakdown{text-align:left;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:15px;margin-bottom:18px;}
-.bitem{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;}
-.bitem:last-child{border-bottom:none;}
-.bval{font-weight:700;color:var(--accent2);}
-.rep-section{margin-bottom:16px;text-align:left;}
-.rep-title{font-family:var(--fh);font-size:13px;margin-bottom:9px;}
-.rep-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:7px;}
-.rep-item.rw{border-left:3px solid var(--wrong);}
-.rep-item.rc{border-left:3px solid var(--correct);}
-.riq{font-size:12.5px;font-weight:600;margin-bottom:4px;line-height:1.4;}
-.rimeta{font-size:11px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;align-items:center;}
-.dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
-.dot.c{background:var(--correct);}
-.dot.w{background:var(--wrong);}
-.rirev{font-size:11px;font-weight:700;margin-top:3px;}
-.rirev.urgent{color:var(--wrong);}
-.rirev.med{color:var(--accent2);}
-.rirev.chill{color:var(--correct);}
-.riexpl{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;border-top:1px solid var(--border);padding-top:5px;}
-.btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-.btn-sec{background:var(--card);border:1.5px solid var(--border);color:var(--text);padding:10px 18px;border-radius:50px;font-size:13px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:all .2s;}
-.btn-sec:hover{border-color:var(--accent);color:var(--accent);}
-.study-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:11px;}
-.study-card .sterm{font-family:var(--fh);font-size:14px;color:var(--accent2);margin-bottom:5px;}
-.study-card .sdef{font-size:13px;line-height:1.7;}
-.study-card .sex{font-size:12px;color:var(--muted);font-style:italic;margin-top:8px;border-left:2px solid var(--accent);padding-left:10px;}
-.chip{display:inline-block;border-radius:20px;font-size:10px;padding:2px 8px;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;}
-.ch-base{background:rgba(124,106,247,.15);color:var(--accent);border:1px solid rgba(124,106,247,.3);}
-.ch-eval{background:rgba(247,193,106,.1);color:var(--accent2);border:1px solid rgba(247,193,106,.3);}
-.ch-fal{background:rgba(247,90,90,.1);color:var(--wrong);border:1px solid rgba(247,90,90,.3);}
-.ch-ind{background:rgba(78,240,192,.1);color:var(--accent3);border:1px solid rgba(78,240,192,.3);}
-.ch-geo{background:rgba(100,200,255,.1);color:#64c8ff;border:1px solid rgba(100,200,255,.3);}
-.ch-dar{background:rgba(180,255,120,.1);color:#a0e060;border:1px solid rgba(180,255,120,.3);}
-.cheat-title{font-family:var(--fh);font-size:19px;margin-bottom:3px;}
-.cheat-sub{color:var(--muted);font-size:12px;margin-bottom:16px;}
-.topic-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
-.topic-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--fb);transition:all .2s;}
-.topic-btn.active{background:rgba(124,106,247,.15);border-color:var(--accent);color:var(--text);}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--ff);min-height:100vh;padding:16px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 5%,rgba(245,166,35,.07),transparent),radial-gradient(ellipse 50% 60% at 90% 95%,rgba(78,205,196,.06),transparent);pointer-events:none;z-index:0}
+
+/* ── LAYOUT ── */
+.wrap{max-width:700px;margin:0 auto;position:relative;z-index:1}
+.screen{display:none}.screen.on{display:block;animation:up .35s ease}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HOME ── */
+.brand{font-family:var(--fm);font-size:10px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:8px}
+.hero{font-family:var(--fh);font-size:clamp(2rem,7vw,3.4rem);line-height:1.05;margin-bottom:4px}
+.hero em{font-style:italic;color:var(--accent)}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);color:var(--accent);border-radius:20px;font-size:11px;padding:4px 12px;margin:10px 0 20px;font-weight:600}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:var(--s1);border-radius:var(--r);padding:4px;margin-bottom:20px;border:1px solid var(--border)}
+.tab{flex:1;padding:8px;border:none;background:transparent;color:var(--muted);font-family:var(--ff);font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s}
+.tab.on{background:var(--s2);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+
+/* ── CARDS GRID ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
+.lcard{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-align:left}
+.lcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:.25s}
+.lcard:hover::before,.lcard.sel::before{transform:scaleX(1)}
+.lcard:hover{border-color:var(--accent);background:#1f2540;transform:translateY(-2px)}
+.lcard.sel{border-color:var(--accent);background:rgba(245,166,35,.08)}
+.lcard.teal::before{background:var(--a2)}.lcard.teal:hover,.lcard.teal.sel{border-color:var(--a2)}.lcard.teal.sel{background:rgba(78,205,196,.07)}
+.lcard.purple::before{background:var(--a3)}.lcard.purple:hover,.lcard.purple.sel{border-color:var(--a3)}.lcard.purple.sel{background:rgba(198,120,221,.07)}
+.lcard.red::before{background:var(--a4)}.lcard.red:hover,.lcard.red.sel{border-color:var(--a4)}.lcard.red.sel{background:rgba(224,108,117,.08)}
+.ln{font-size:9px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:3px}
+.lcard.teal .ln{color:var(--a2)}.lcard.purple .ln{color:var(--a3)}.lcard.red .ln{color:var(--a4)}
+.lt{font-family:var(--fh);font-size:13px;font-weight:700;margin-bottom:2px}
+.ld{font-size:11px;color:var(--muted);line-height:1.4}
+.ltag{position:absolute;top:8px;right:8px;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:1px}
+.tag-gold{background:var(--accent);color:#0a0c10}.tag-teal{background:var(--a2);color:#0a0c10}.tag-red{background:var(--a4);color:white}
+
+/* ── EXAM CARDS ── */
+.exam-banner{background:linear-gradient(135deg,rgba(245,166,35,.1),rgba(78,205,196,.06));border:1.5px solid rgba(245,166,35,.25);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.exam-title{font-family:var(--fh);font-size:16px;color:var(--accent);margin-bottom:4px}
+.exam-desc{font-size:12px;color:var(--muted);line-height:1.6}
+.exam-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.ecard{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .2s;text-align:left}
+.ecard:hover{border-color:var(--accent);background:#1f2540}
+.ecard.sel{border-color:var(--accent);background:rgba(245,166,35,.08)}
+.ec-num{font-family:var(--fm);font-size:10px;color:var(--accent);margin-bottom:4px}
+.ec-name{font-size:12px;font-weight:600;margin-bottom:2px}
+.ec-desc{font-size:11px;color:var(--muted)}
+
+/* ── BUTTONS ── */
+.btn{border:none;padding:12px 28px;font-size:13px;font-weight:600;font-family:var(--ff);border-radius:50px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#0a0c10}.btn-primary:hover{background:#f7bc52;transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,166,35,.3)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-teal{background:var(--a2);color:#0a0c10}.btn-teal:hover{background:#6dddd6}
+.btn-ghost{background:var(--card);border:1.5px solid var(--border);color:var(--text)}.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm{padding:8px 16px;font-size:12px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* ── QUIZ SCREEN ── */
+.q-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px}
+.q-meta{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.q-level{font-size:12px;color:var(--text);font-weight:600;margin-top:2px}
+.q-score{font-family:var(--fh);font-size:20px;color:var(--accent);white-space:nowrap}
+.prog-bar{height:3px;background:var(--border);border-radius:2px;margin-bottom:6px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--a2));border-radius:2px;transition:width .4s}
+.streak-bar{font-size:12px;color:var(--accent);text-align:center;height:18px;margin-bottom:8px;font-weight:600;font-family:var(--fm)}
+
+.qcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:10px}
+.qcat{display:inline-flex;align-items:center;font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;background:rgba(245,166,35,.1);border-radius:20px;padding:2px 8px;margin-bottom:8px}
+.qtext{font-size:14.5px;line-height:1.7;font-weight:500}
+.qsub{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6;font-style:italic;border-left:2px solid var(--border);padding-left:10px}
+.rtag{position:absolute;top:10px;right:12px;background:rgba(224,108,117,.12);color:var(--err);border:1px solid rgba(224,108,117,.3);border-radius:20px;font-size:9px;padding:2px 7px;font-weight:700;letter-spacing:1px;display:none}
+.rtag.on{display:block}
+
+.opts{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.opt{background:var(--card);border:1.5px solid var(--border);color:var(--text);padding:10px 13px;border-radius:10px;font-size:13px;font-family:var(--ff);cursor:pointer;text-align:left;transition:all .18s;line-height:1.45;display:flex;align-items:flex-start;gap:9px}
+.opt:hover:not(:disabled){border-color:var(--accent);background:rgba(245,166,35,.06)}
+.olet{background:var(--border);color:var(--muted);border-radius:6px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;transition:all .18s;font-family:var(--fm)}
+.opt:hover:not(:disabled) .olet{background:var(--accent);color:#0a0c10}
+.opt.ok{border-color:var(--ok);background:rgba(78,205,196,.08)}.opt.ok .olet{background:var(--ok);color:#0a0c10}
+.opt.err{border-color:var(--err);background:rgba(224,108,117,.08)}.opt.err .olet{background:var(--err);color:white}
+.opt.show-ok{border-color:var(--ok);background:rgba(78,205,196,.04)}
+.opt:disabled{cursor:default}
+
+.fb-box{background:var(--s1);border-left:3px solid var(--a2);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;margin-bottom:10px;display:none}
+.fb-box.on{display:block;animation:up .3s}
+.fb-title{font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;color:var(--a2)}
+.fb-box.wrong{border-left-color:var(--accent)}.fb-box.wrong .fb-title{color:var(--accent)}
+.sched{display:inline-flex;align-items:center;gap:5px;border-radius:20px;font-size:11px;padding:3px 10px;font-weight:700;margin-top:8px}
+.sched.red{background:rgba(224,108,117,.12);color:var(--err);border:1px solid rgba(224,108,117,.25)}
+.sched.green{background:rgba(78,205,196,.1);color:var(--a2);border:1px solid rgba(78,205,196,.25)}
+.sched.blue{background:rgba(198,120,221,.1);color:var(--a3);border:1px solid rgba(198,120,221,.25)}
+
+.btn-next{background:transparent;border:1.5px solid var(--accent);color:var(--accent);padding:10px 20px;border-radius:50px;font-size:13px;font-weight:600;font-family:var(--ff);cursor:pointer;transition:all .2s;display:none}
+.btn-next.on{display:inline-flex;align-items:center;gap:6px}
+.btn-next:hover{background:var(--accent);color:#0a0c10}
+
+/* ── EXAM FORMAT SCREEN ── */
+.ex-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.ex-title{font-family:var(--fh);font-size:18px}
+.ex-num{font-family:var(--fm);font-size:13px;color:var(--accent)}
+.ex-inst{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;font-weight:600;margin-bottom:12px;line-height:1.5}
+.ex-text{background:var(--s2);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;font-style:italic;margin-bottom:12px;border-left:2px solid var(--accent)}
+.dual-label{font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--a3);text-transform:uppercase;margin:12px 0 6px}
+.tf-row{display:flex;gap:8px;margin-bottom:12px}
+.tf-btn{flex:1;padding:12px;border:1.5px solid var(--border);background:var(--card);color:var(--text);border-radius:10px;font-size:16px;font-weight:700;font-family:var(--fm);cursor:pointer;transition:all .2s}
+.tf-btn:hover{border-color:var(--a2);background:rgba(78,205,196,.07)}
+.tf-btn.sel-v{border-color:var(--a2);background:rgba(78,205,196,.1);color:var(--a2)}
+.tf-btn.sel-f{border-color:var(--err);background:rgba(224,108,117,.1);color:var(--err)}
+.tf-btn.ok-border{border-color:var(--ok)!important}
+.tf-btn.err-border{border-color:var(--err)!important}
+
+.ex-score-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.ex-pip{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--fm)}
+.ex-pip.ok{background:rgba(78,205,196,.15);border-color:var(--ok);color:var(--ok)}
+.ex-pip.err{background:rgba(224,108,117,.12);border-color:var(--err);color:var(--err)}
+.ex-pip.cur{border-color:var(--accent);color:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.ex-pip.pend{color:var(--muted)}
+
+/* ── RESULTS ── */
+#results{text-align:center}
+.ring-wrap{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;position:relative;background:conic-gradient(var(--accent) var(--pct),var(--border) 0)}
+.ring-inner{width:96px;height:96px;background:var(--bg);border-radius:50%;position:absolute}
+.ring-label{position:relative;z-index:1;font-family:var(--fh);font-size:28px;font-weight:700;color:var(--accent)}
+.res-title{font-family:var(--fh);font-size:22px;margin-bottom:4px}
+.res-sub{color:var(--muted);font-size:13px;margin-bottom:18px;line-height:1.5}
+.breakdown{text-align:left;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:16px}
+.bi{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
+.bi:last-child{border-bottom:none}
+.bv{font-weight:700;color:var(--accent)}
+
+.rep-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:6px}
+.rep-item.rw{border-left:3px solid var(--err)}.rep-item.rc{border-left:3px solid var(--ok)}
+.riq{font-size:12.5px;font-weight:600;margin-bottom:3px;line-height:1.4}
+.rimeta{font-size:11px;color:var(--muted);margin-bottom:3px}
+.riexpl{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;border-top:1px solid var(--border);padding-top:5px}
+
+/* ── STUDY ── */
+.study-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.sc-chip{display:inline-block;border-radius:20px;font-size:10px;padding:2px 8px;margin-bottom:7px;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.ch-a{background:rgba(245,166,35,.12);color:var(--accent);border:1px solid rgba(245,166,35,.3)}
+.ch-d{background:rgba(78,205,196,.1);color:var(--a2);border:1px solid rgba(78,205,196,.3)}
+.ch-f{background:rgba(224,108,117,.1);color:var(--err);border:1px solid rgba(224,108,117,.3)}
+.ch-i{background:rgba(198,120,221,.1);color:var(--a3);border:1px solid rgba(198,120,221,.3)}
+.ch-dar{background:rgba(180,255,100,.08);color:#a0e060;border:1px solid rgba(180,255,100,.25)}
+.sc-term{font-family:var(--fh);font-size:14px;color:var(--accent);margin-bottom:5px}
+.sc-def{font-size:13px;line-height:1.7}
+.sc-ex{font-size:12px;color:var(--muted);font-style:italic;margin-top:7px;border-left:2px solid var(--accent);padding-left:10px;line-height:1.5}
+.topic-filter{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tf{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:5px 11px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--ff);transition:all .2s}
+.tf.on{background:rgba(245,166,35,.12);border-color:var(--accent);color:var(--text)}
+
+/* ── TIMER BANNER ── */
+.timer-banner{background:rgba(245,166,35,.08);border:1.5px solid rgba(245,166,35,.25);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--accent);font-weight:600;display:none;align-items:center;gap:10px}
+.timer-banner.on{display:flex;animation:up .3s}
+.timer-arc{width:30px;height:30px;flex-shrink:0}
+.timer-arc circle{fill:none;stroke:var(--border);stroke-width:3}
+.timer-arc .arc{stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-dasharray:88;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .9s linear}
+.tnum{font-family:var(--fm);font-size:16px;color:var(--accent);min-width:26px;text-align:right}
+
+/* ── FORMULA PANEL ── */
+.formula{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0;font-family:var(--fm);font-size:12px;line-height:2}
+.f-ok{color:var(--a2)}.f-err{color:var(--err)}.f-acc{color:var(--accent)}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div id="home" class="screen active">
-  <div class="logo">UBA XXI · IPC Cátedra A</div>
-  <h1>Pensamiento<br><span>Científico</span></h1>
-  <div class="exam-badge">📅 Primer Parcial — 16 de abril</div>
-  <p class="subtitle">7 niveles · 75+ preguntas · repetición inteligente · reporte de errores.</p>
+<!-- HOME -->
+<div id="home" class="screen on">
+  <div class="brand">UBA XXI · Cátedra Buacar</div>
+  <h1 class="hero">Introducción al<br><em>Pensamiento Científico</em></h1>
+  <div class="badge">📅 Primer Parcial — viernes</div>
 
-  <div class="mode-toggle">
-    <button class="mode-btn active" onclick="setMode('trivia')" id="modeTriviaBtn">🎮 Trivia</button>
-    <button class="mode-btn" onclick="setMode('study')" id="modeStudyBtn">📖 Repaso</button>
-    <button class="mode-btn" onclick="setMode('exam')" id="modeExamBtn">🎯 Simulacro</button>
+  <div class="tabs">
+    <button class="tab on" onclick="setTab('trivia')">🎮 Trivia</button>
+    <button class="tab" onclick="setTab('exam')">📝 Examen Real</button>
+    <button class="tab" onclick="setTab('study')">📖 Repaso</button>
   </div>
 
-  <div id="triviaSection">
-    <div class="levels-grid">
-      <div class="level-card" onclick="sel(0)" id="lc0">
-        <div class="lbadge">🔍</div><div class="lnum">Nivel 1</div>
-        <div class="ltitle">Reconocimiento</div>
-        <div class="ldesc">Argumentos, premisas, conclusiones, proposiciones</div>
+  <!-- TRIVIA TAB -->
+  <div id="tab-trivia">
+    <div class="grid">
+      <div class="lcard" onclick="selLevel(0)" id="lc0">
+        <div class="lt">🔍 Reconocimiento</div>
+        <div class="ld">Argumentos, premisas, conclusiones, indicadores</div>
       </div>
-      <div class="level-card" onclick="sel(1)" id="lc1">
-        <div class="lbadge">🧩</div><div class="lnum">Nivel 2</div>
-        <div class="ltitle">Enunciados</div>
-        <div class="ldesc">Conectivas, tautologías, modalidad, alcance</div>
+      <div class="lcard" onclick="selLevel(1)" id="lc1">
+        <div class="lt">🧩 Enunciados</div>
+        <div class="ld">Conectivas, tablas de verdad, tautologías</div>
       </div>
-      <div class="level-card" onclick="sel(2)" id="lc2">
-        <div class="lbadge">⚖️</div><div class="lnum">Nivel 3</div>
-        <div class="ltitle">Deductivos y Reglas</div>
-        <div class="ldesc">Validez, solidez, Modus Ponens/Tollens, prueba por absurdo</div>
+      <div class="lcard teal" onclick="selLevel(2)" id="lc2">
+        <div class="lt">⚖️ Deductivos</div>
+        <div class="ld">Validez, solidez, MP/MT, silogismos</div>
       </div>
-      <div class="level-card hl" onclick="sel(3)" id="lc3">
-        <div class="new-tag gold">🚨 DIFÍCIL</div><div class="lnum">Nivel 4</div>
-        <div class="ltitle">Falacias</div>
-        <div class="ldesc">AFC, FNA, diferencias con formas válidas</div>
+      <div class="lcard red" onclick="selLevel(3)" id="lc3">
+        <div class="ltag tag-red">🚨 DIFÍCIL</div>
+        <div class="lt">🚫 Falacias</div>
+        <div class="ld">AFC, FNA vs MP/MT — el nivel clave</div>
       </div>
-      <div class="level-card" onclick="sel(4)" id="lc4">
-        <div class="lbadge">📊</div><div class="lnum">Nivel 5</div>
-        <div class="ltitle">Inductivos</div>
-        <div class="ldesc">Analogía, enumeración incompleta, silogismo inductivo</div>
+      <div class="lcard purple" onclick="selLevel(4)" id="lc4">
+        <div class="lt">📊 Inductivos</div>
+        <div class="ld">Analogía, enumeración, silogismo inductivo</div>
       </div>
-      <div class="level-card hl" onclick="sel(5)" id="lc5">
-        <div class="new-tag gold">NUEVO</div><div class="lnum">Nivel 6</div>
-        <div class="ltitle">Geometría y Axiomas</div>
-        <div class="ldesc">Euclides, geometrías no euclidianas, sistemas axiomáticos</div>
+      <div class="lcard teal" onclick="selLevel(5)" id="lc5">
+        <div class="ltag tag-teal">🌿</div>
+        <div class="lt">Darwin & Lamarck</div>
+        <div class="ld">Selección natural, adaptación, evolución</div>
       </div>
-      <div class="level-card green" onclick="sel(6)" id="lc6">
-        <div class="new-tag teal">NUEVO</div><div class="lnum">Nivel 7</div>
-        <div class="ltitle">🌿 Revolución Darwiniana</div>
-        <div class="ldesc">Diversidad, adaptación, Lamarck, Darwin, selección natural</div>
+      <div class="lcard" onclick="selLevel(6)" id="lc6">
+        <div class="ltag tag-gold">BOSS</div>
+        <div class="lt">🏆 Parcial Completo</div>
+        <div class="ld">Todo mezclado — preparación final</div>
       </div>
-      <div class="level-card" onclick="sel(7)" id="lc7">
-        <div class="lbadge">🏆</div><div class="lnum">Nivel 8 · Boss</div>
-        <div class="ltitle">Todo junto — Parcial completo</div>
-        <div class="ldesc">Mezcla de todos los temas del primer parcial</div>
+      <div class="lcard purple" onclick="selLevel(7)" id="lc7">
+        <div class="ltag tag-gold">NUEVO</div>
+        <div class="lt">🎯 Identificación Rápida</div>
+        <div class="ld">Distinguir AFC vs FNA vs MT vs MP</div>
       </div>
     </div>
-    <button class="btn-primary" id="startBtn" onclick="startQuiz()" disabled>Elegí un nivel para empezar</button>
+    <button class="btn btn-primary" id="startBtn" onclick="startTrivia()" disabled style="width:100%">Elegí un nivel para empezar</button>
   </div>
 
-  <div id="studySection" style="display:none">
-    <div class="cheat-title">Conceptos clave</div>
-    <div class="cheat-sub">Todo el material del parcial en un lugar.</div>
+  <!-- EXAM TAB -->
+  <div id="tab-exam" style="display:none">
+    <div class="exam-banner">
+      <div class="exam-title">📝 Simulacro con formato real del parcial</div>
+      <div class="exam-desc">10 ejercicios exactamente como en el examen: argumentos, enunciados, deductivos, inductivos y Darwin. Sin feedback hasta el final.</div>
+    </div>
+    <div class="exam-grid">
+      <div class="ecard" onclick="selExam(0)" id="ec0">
+        <div class="ec-num">SET A</div>
+        <div class="ec-name">Hongos y naturaleza</div>
+        <div class="ec-desc">Contexto botánico — como en el real</div>
+      </div>
+      <div class="ecard" onclick="selExam(1)" id="ec1">
+        <div class="ec-num">SET B</div>
+        <div class="ec-name">Animales y evolución</div>
+        <div class="ec-desc">Tortugas, perezosos, aves</div>
+      </div>
+      <div class="ecard" onclick="selExam(2)" id="ec2">
+        <div class="ec-num">SET C</div>
+        <div class="ec-name">Ciencia y conocimiento</div>
+        <div class="ec-desc">Astronomía, física, biología</div>
+      </div>
+      <div class="ecard" onclick="selExam(3)" id="ec3">
+        <div class="ec-num">SET D</div>
+        <div class="ec-name">Cotidiano y sociedad</div>
+        <div class="ec-desc">Ejemplos de la vida diaria</div>
+      </div>
+    </div>
+    <button class="btn btn-teal" id="startExamBtn" onclick="startExam()" disabled style="width:100%">Empezar simulacro →</button>
+  </div>
+
+  <!-- STUDY TAB -->
+  <div id="tab-study" style="display:none">
     <div class="topic-filter">
-      <button class="topic-btn active" onclick="filterStudy('all',this)">Todo</button>
-      <button class="topic-btn" onclick="filterStudy('Argumentos',this)">Argumentos</button>
-      <button class="topic-btn" onclick="filterStudy('Enunciados',this)">Enunciados</button>
-      <button class="topic-btn" onclick="filterStudy('Deductivo',this)">Deductivo</button>
-      <button class="topic-btn" onclick="filterStudy('Falacias',this)">🚨 Falacias</button>
-      <button class="topic-btn" onclick="filterStudy('Inductivo',this)">Inductivo</button>
-      <button class="topic-btn" onclick="filterStudy('Geometría',this)">Geometría</button>
-      <button class="topic-btn" onclick="filterStudy('Darwin',this)">🌿 Darwin</button>
+      <button class="tf on" onclick="filterStudy('all',this)">Todo</button>
+      <button class="tf" onclick="filterStudy('arg',this)">Argumentos</button>
+      <button class="tf" onclick="filterStudy('enunc',this)">Enunciados</button>
+      <button class="tf" onclick="filterStudy('ded',this)">Deductivo</button>
+      <button class="tf" onclick="filterStudy('fal',this)">🚨 Falacias</button>
+      <button class="tf" onclick="filterStudy('ind',this)">Inductivo</button>
+      <button class="tf" onclick="filterStudy('dar',this)">🌿 Darwin</button>
     </div>
     <div id="studyCards"></div>
-    <button class="btn-primary" onclick="setMode('trivia')" style="margin-top:6px">Ir a practicar →</button>
-  </div>
-
-  <div id="examSection" style="display:none">
-    <div class="exam-mode-card">
-      <div class="exam-mode-title">🎯 Simulacro de parcial</div>
-      <div class="exam-mode-desc">24 preguntas mezcladas de todos los niveles, sin feedback hasta el final. Con repetición inteligente activada. Usalo los últimos días antes del 16.</div>
-    </div>
-    <button class="btn-primary gold" onclick="startExamMode()">Empezar simulacro →</button>
+    <button class="btn btn-primary btn-sm" onclick="setTab('trivia')">Ir a practicar →</button>
   </div>
 </div>
 
+<!-- QUIZ SCREEN -->
 <div id="quiz" class="screen">
-  <div class="quiz-header">
+  <div class="q-header">
     <div>
-      <div class="quiz-meta-top" id="quizMeta">Pregunta 1 de 8</div>
-      <div class="quiz-level-name" id="quizLevelName"></div>
+      <div class="q-meta" id="qMeta">Pregunta 1 de 10</div>
+      <div class="q-level" id="qLevelName"></div>
     </div>
-    <div class="quiz-score" id="quizScore">0 pts</div>
+    <div class="q-score" id="qScore">0 pts</div>
   </div>
-  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
   <div class="streak-bar" id="streakBar"></div>
 
-  <div class="review-banner" id="reviewBanner">
-    <span>🔄</span>
-    <div class="rbtxt">Repaso programado en</div>
-    <div class="timer-wrap">
-      <svg class="tring" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12"/><circle class="arc" id="timerArc" cx="15" cy="15" r="12"/></svg>
-      <div class="tnum" id="reviewTimer">-</div>
-    </div>
+  <div class="timer-banner" id="timerBanner">
+    <span>🔄 Repaso en</span>
+    <svg class="timer-arc" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12"/><circle class="arc" id="timerArc" cx="15" cy="15" r="12"/></svg>
+    <div class="tnum" id="timerNum">-</div>
   </div>
 
-  <div class="question-card">
-    <div class="qcat" id="qCategory">Pregunta</div>
-    <div class="review-tag" id="qReviewTag">🔄 REPASO</div>
-    <div class="qtext" id="qText">…</div>
+  <div class="qcard" style="position:relative">
+    <div class="rtag" id="rtag">🔄 REPASO</div>
+    <div class="qcat" id="qcat">Categoría</div>
+    <div class="qtext" id="qtext">…</div>
+    <div class="qsub" id="qsub" style="display:none"></div>
   </div>
-  <div class="options" id="optionsContainer"></div>
-  <div class="feedback-box" id="feedbackBox">
-    <div class="fbtitle" id="fbTitle"></div>
-    <div id="fbText"></div>
-    <div id="schedInfo"></div>
-  </div>
+  <div class="opts" id="optsContainer"></div>
+  <div class="fb-box" id="fbBox"><div class="fb-title" id="fbTitle"></div><div id="fbText"></div><div id="schedInfo"></div></div>
   <button class="btn-next" id="nextBtn" onclick="nextQ()">Siguiente →</button>
 </div>
 
-<div id="results" class="screen">
-  <div class="results-ring" id="resultsRing" style="--pct:0deg"><span class="ring-label" id="ringLabel">0%</span></div>
-  <div class="rtitle" id="resTitle">¡Bien jugado!</div>
-  <div class="rsub" id="resSub"></div>
-  <div class="rbreakdown" id="resBreakdown"></div>
-  <div id="errorReport"></div>
-  <div class="btn-row">
-    <button class="btn-sec" onclick="retryLevel()">↩ Reintentar</button>
-    <button class="btn-primary" onclick="goHome()">← Inicio</button>
+<!-- EXAM FORMAT SCREEN -->
+<div id="examScreen" class="screen">
+  <div class="ex-header">
+    <div>
+      <div class="q-meta" id="exMeta">Ejercicio 1 de 10</div>
+      <div id="exSetName" style="font-size:12px;color:var(--muted)"></div>
+    </div>
+    <div class="q-score" id="exScore" style="display:none">10/10</div>
+  </div>
+  <div class="ex-score-row" id="exPips"></div>
+  <div class="prog-bar"><div class="prog-fill" id="exProgFill" style="width:0%"></div></div>
+  
+  <div id="exBody"></div>
+  
+  <div class="fb-box" id="exFbBox" style="display:none">
+    <div class="fb-title" id="exFbTitle"></div>
+    <div id="exFbText"></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <button class="btn btn-primary" id="exNextBtn" onclick="nextExercise()" style="display:none">Siguiente ejercicio →</button>
+    <button class="btn btn-ghost btn-sm" onclick="showScreen('home')">← Salir</button>
   </div>
 </div>
 
+<!-- RESULTS -->
+<div id="results" class="screen">
+  <div class="ring-wrap" id="resRing" style="--pct:0deg">
+    <div class="ring-inner"></div>
+    <span class="ring-label" id="ringLabel">0%</span>
+  </div>
+  <div class="res-title" id="resTitle">¡Buen intento!</div>
+  <div class="res-sub" id="resSub"></div>
+  <div class="breakdown" id="resBreak"></div>
+  <div id="errReport"></div>
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn btn-ghost" onclick="retryLevel()">↩ Reintentar</button>
+    <button class="btn btn-primary" onclick="showScreen('home')">← Inicio</button>
+  </div>
+</div>
+
+<!-- EXAM RESULTS -->
+<div id="examResults" class="screen">
+  <div class="ring-wrap" id="exResRing" style="--pct:0deg">
+    <div class="ring-inner"></div>
+    <span class="ring-label" id="exRingLabel">0/10</span>
+  </div>
+  <div class="res-title" id="exResTitle">Parcial terminado</div>
+  <div class="res-sub" id="exResSub"></div>
+  <div id="exDetailed"></div>
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn btn-ghost" onclick="retryExam()">↩ Repetir</button>
+    <button class="btn btn-primary" onclick="showScreen('home')">← Inicio</button>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
 <script>
+// ═══════════════════════════════════════════
+// DATA — TRIVIA QUESTIONS
+// ═══════════════════════════════════════════
+
 const LEVELS = [
-{name:"Reconocimiento de argumentos",emoji:"🔍",questions:[
-  {q:"¿Qué es un argumento?",ops:["Una opinión personal sobre un tema","Un conjunto de enunciados con premisas y conclusión","Una pregunta retórica","Una oración muy larga"],c:1,cat:"Argumentos",fb:"Argumento = conjunto de enunciados con ESTRUCTURA: premisas (razones) + conclusión (única). No todo conjunto de enunciados es argumento — necesita esa estructura interna."},
-  {q:"¿Qué son los enunciados?",ops:["Oraciones que expresan emociones","Oraciones que dan órdenes","Oraciones que afirman o niegan algo — pueden ser V o F","Cualquier tipo de oración"],c:2,cat:"Enunciados",fb:"Los enunciados afirman o niegan algo y por eso pueden ser V o F. Las preguntas, órdenes y pedidos NO son enunciados."},
-  {q:"'Por lo tanto', 'luego', 'en consecuencia' son indicadores de…",ops:["Premisa","Conclusión","Subargumento","Enunciado falso"],c:1,cat:"Indicadores",fb:"Son indicadores de CONCLUSIÓN. Lo que viene ANTES de esas expresiones son las premisas."},
-  {q:"'Dado que', 'puesto que', 'porque', 'debido a' son indicadores de…",ops:["Conclusión","Contradicción","Premisa","Tautología"],c:2,cat:"Indicadores",fb:"Son indicadores de PREMISA. Lo que les sigue son las razones ofrecidas a favor de la conclusión."},
-  {q:"¿Cuántas conclusiones puede haber en un argumento?",ops:["Tantas como premisas","Solo una","Ninguna si el texto es largo","Depende del contexto"],c:1,cat:"Argumentos",fb:"La conclusión es ÚNICA. Puede aparecer al principio, al medio o al final — no necesariamente al final del texto."},
-  {q:"¿Qué diferencia hay entre oración y proposición?",ops:["Son exactamente lo mismo","La oración es el soporte material del lenguaje; la proposición es lo que el enunciado afirma o niega","La proposición es más larga que la oración","Solo las proposiciones pueden ser falsas"],c:1,cat:"Proposiciones",fb:"Oración = fragmento del lenguaje (soporte material). Proposición = lo que el enunciado afirma o niega. Dos oraciones distintas pueden expresar la misma proposición."},
-  {q:"'El banco está cerca' puede referirse a una entidad financiera O a un asiento. ¿Qué nos muestra esto?",ops:["Que las proposiciones siempre son ambiguas","Que una misma oración puede expresar dos proposiciones distintas","Que no es un enunciado válido","Que las proposiciones son idénticas a las oraciones"],c:1,cat:"Proposiciones",fb:"Es una oración AMBIGUA: una misma oración puede expresar dos proposiciones diferentes. Esto importa al reconstruir argumentos."},
-  {q:"Al reconstruir un argumento, ¿qué debemos privilegiar?",ops:["Las oraciones exactas del texto","Las proposiciones — lo que se afirma — aunque implique parafrasear","Solo los indicadores de premisa que aparecen","La extensión total del texto"],c:1,cat:"Proposiciones",fb:"En la reconstrucción hay que atender a las PROPOSICIONES. Es posible y necesario parafrasear, omitir expresiones irrelevantes o agregar lo que falta para completar el sentido."}
+{name:"Reconocimiento de argumentos",questions:[
+  {q:"¿Qué es un argumento?",ops:["Una opinión personal","Un conjunto de enunciados donde unos (premisas) apoyan a otro (conclusión)","Una pregunta retórica","Una oración muy larga"],c:1,cat:"Argumentos",fb:"Un argumento tiene ESTRUCTURA: premisas (razones) + conclusión (única). No todo conjunto de enunciados es argumento — necesita esa estructura interna."},
+  {q:"'Dado que', 'puesto que', 'porque', 'ya que', 'pues' son indicadores de…",ops:["Conclusión","Premisa","Contradicción","Enunciado falso"],c:1,cat:"Indicadores",fb:"Son indicadores de PREMISA. Lo que les sigue son las razones a favor de la conclusión."},
+  {q:"'Por lo tanto', 'luego', 'en consecuencia', 'se sigue que', 'podemos inferir' son indicadores de…",ops:["Premisa","Enunciado condicional","Conclusión","Argumento inductivo"],c:2,cat:"Indicadores",fb:"Son indicadores de CONCLUSIÓN. Lo que viene ANTES de esas expresiones son las premisas."},
+  {q:"¿Cuántas conclusiones puede tener un argumento?",ops:["Tantas como premisas","Solo una","Depende del tipo de argumento","Ninguna"],c:1,cat:"Argumentos",fb:"La conclusión es ÚNICA. Puede estar al principio, al medio o al final — no necesariamente al final del texto."},
+  {q:"'Si hace sol, vamos a la playa' — ¿Es esto un argumento?",ops:["Sí, la primera parte es la premisa y la segunda la conclusión","No, es un enunciado condicional que relaciona dos proposiciones","Sí, tiene más de una oración","No, porque no tiene indicadores de premisa"],c:1,cat:"Argumentos",fb:"Un enunciado CONDICIONAL no es un argumento. No hay premisas ni conclusión: solo una relación entre antecedente y consecuente. No se está ofreciendo una razón para probar algo."},
+  {q:"'Los hongos no son vegetales, puesto que los vegetales fotosintetizan y los hongos no.' ¿Cuál es la conclusión?",ops:["Los vegetales fotosintetizan","Los hongos no fotosintetizan","Los hongos no son vegetales","Los hongos y los vegetales son diferentes"],c:2,cat:"Indicadores",fb:"El indicador de conclusión NO está explícito aquí — el indicador de PREMISA 'puesto que' nos dice que lo que le sigue son las razones. Por lo tanto, lo que PRECEDE a 'puesto que' es la conclusión."},
+  {q:"¿Cuál de estos fragmentos es un argumento? a) 'El sol sale todos los días.' b) '¿Saldrá el sol mañana?' c) 'El sol saldrá mañana porque hoy está despejado.' d) 'Si el sol sale, habrá calor.'",ops:["a","b","c","d"],c:2,cat:"Argumentos",fb:"C es argumento: tiene un indicador de premisa ('porque') que separa la conclusión ('el sol saldrá mañana') de la razón ('hoy está despejado'). A es un enunciado simple. B es una pregunta. D es un condicional."},
+  {q:"¿Cuál es la diferencia entre oración y proposición?",ops:["Son exactamente lo mismo","La oración es el soporte material (texto/sonido); la proposición es lo que se afirma o niega con ella","La proposición es más larga","Solo las proposiciones pueden ser falsas"],c:1,cat:"Proposiciones",fb:"Oración = soporte material del lenguaje. Proposición = contenido/significado de lo que se afirma. Dos oraciones distintas pueden expresar la misma proposición ('llueve' / 'está lloviendo')."},
+  {q:"Al reconstruir un argumento, ¿qué privilegiamos?",ops:["Las oraciones exactas del texto","Las proposiciones — lo que se afirma — aunque implique parafrasear","Solo los indicadores que aparecen","La extensión del texto"],c:1,cat:"Proposiciones",fb:"Privilegiamos las PROPOSICIONES. Es posible y necesario parafrasear, omitir expresiones irrelevantes o agregar lo implícito para completar el sentido del argumento."},
+  {q:"'Lo cual prueba que', 'lo cual justifica que', 'consecuentemente' son indicadores de…",ops:["Premisa","Conclusión","Contradicción","Hipótesis"],c:1,cat:"Indicadores",fb:"Son indicadores de CONCLUSIÓN menos frecuentes pero que aparecen en el examen. Aprendelos también: 'queda demostrado que', 'se infiere que', 'consecuentemente'."},
+  {q:"¿Puede haber argumentos SIN indicadores explícitos?",ops:["No, siempre deben tener indicadores","Sí, la estructura se infiere del contexto y el sentido","Solo en argumentos deductivos","Solo en argumentos inductivos"],c:1,cat:"Argumentos",fb:"Sí. No todos los argumentos presentan indicadores. La premisa y la conclusión se infieren del contexto: debemos entender qué se afirma, cómo se articula y qué se busca justificar."},
+  {q:"'Se cree que existen muchas especies de hongos desconocidas. Lo que se infiere a partir de la gran cantidad de ecosistemas poco explorados.' ¿Cuál es la conclusión?",ops:["Existen ecosistemas poco explorados","Se cree que existen muchas especies de hongos desconocidas","Hay constante descubrimiento de especies","Los ecosistemas son variados"],c:1,cat:"Indicadores",fb:"El indicador 'lo que se infiere a partir de' señala que lo que le precede es la conclusión. La conclusión es que se cree que existen muchas especies de hongos desconocidas, y la razón son los ecosistemas poco explorados."}
 ]},
-{name:"Tipos de enunciados",emoji:"🧩",questions:[
-  {q:"'Federico no está en el aula.' ¿Qué tipo de enunciado es?",ops:["Disyunción inclusiva","Negación","Condicional","Enunciado simple afirmativo"],c:1,cat:"Negación",fb:"Es una negación. Verdadera cuando el enunciado negado es falso. Partículas: 'no', 'des-', 'in-', 'es falso que'."},
-  {q:"La conjunción 'A y B' es verdadera cuando…",ops:["Al menos uno de los dos es V","Solo cuando ninguno de los dos es V","AMBOS conjuntos son V","Siempre es V"],c:2,cat:"Conjunción",fb:"La conjunción es V solo cuando AMBOS conyuntos son V. Conectores: 'y', 'pero', 'además', 'también'."},
-  {q:"La disyunción INCLUSIVA 'A o B' es verdadera cuando…",ops:["Solo si A es V y B es F exactamente","Solo si ninguno de los dos es V","AL MENOS UNO es V — incluso si ambos lo son","Solo si exactamente uno es V"],c:2,cat:"Disyunción",fb:"Disyunción INCLUSIVA: V cuando AL MENOS UNO es V. Si los dos son V, sigue siendo V. Es el 'o' lógico estándar."},
-  {q:"La disyunción EXCLUSIVA 'o bien A o bien B' es verdadera cuando…",ops:["Al menos uno de los dos es V","Ambos son V al mismo tiempo","UNO Y SOLO UNO es V","Ninguno de los dos es V"],c:2,cat:"Disyunción",fb:"Disyunción EXCLUSIVA: V cuando uno y solo uno es V. Si ambos son V o ambos F → es F."},
-  {q:"El condicional 'Si A entonces B' es FALSO cuando…",ops:["A es V y B es V","A es F y B es V","A es V y B es F","A es F y B es F"],c:2,cat:"Condicional",fb:"Un condicional es F SOLO cuando el antecedente es V y el consecuente es F. Todas las otras combinaciones dan V."},
-  {q:"'Bs. As. se inunda siempre y cuando sea azotada por un tsunami.' ¿Qué tipo de enunciado es?",ops:["Condicional simple","Bicondicional","Disyunción exclusiva","Negación compuesta"],c:1,cat:"Bicondicional",fb:"Es un BICONDICIONAL: establece la relación condicional en ambos sentidos (A→B y B→A). V cuando ambos tienen el mismo valor de verdad."},
-  {q:"¿Qué es una tautología?",ops:["Siempre F por su estructura lógica","V o F según el contexto del mundo","Necesariamente V por su estructura lógica","Un argumento con premisas inválidas"],c:2,cat:"Modalidad",fb:"Tautología: siempre V. 'Hoy es viernes o no lo es' — no hay escenario donde sea F. Su verdad depende de la estructura lógica, no del mundo."},
-  {q:"¿Qué es una contradicción lógica?",ops:["V o F según el contexto del mundo","Necesariamente F por su estructura lógica","Lo mismo que tautología pero más compleja","Un argumento con premisas falsas"],c:1,cat:"Modalidad",fb:"Contradicción: siempre F por estructura. 'Hace frío y no hace frío' — no hay escenario donde sea V."},
-  {q:"Si una oración es una contradicción, su NEGACIÓN será…",ops:["Una contingencia","Una tautología","Otra contradicción","Imposible de determinar"],c:1,cat:"Modalidad",fb:"La negación invierte los valores de verdad. Una contradicción es siempre F → su negación es siempre V = tautología."},
-  {q:"Tautología en conjunción con contingencia da como resultado…",ops:["Tautología siempre","Contradicción siempre","Contingencia","Siempre F"],c:2,cat:"Modalidad",fb:"La tautología es siempre V. La conjunción es V solo cuando AMBAS son V → será V cuando la contingencia sea V = resultado contingencia."}
+{name:"Tipos de enunciados",questions:[
+  {q:"La conjunción 'A y B' es verdadera cuando…",ops:["Al menos uno es V","Solo A es V","AMBOS son V","Siempre"],c:2,cat:"Conjunción",fb:"Conjunción: V solo cuando AMBOS conyuntos son V. Conectores: 'y', 'pero', 'aunque', 'sin embargo', ','."},
+  {q:"La disyunción INCLUSIVA 'A o B' es falsa cuando…",ops:["Solo A es V","Solo B es V","Ambos son V","Ambos son F"],c:3,cat:"Disyunción",fb:"Disyunción inclusiva: V cuando AL MENOS UNO es V (incluso si ambos lo son). Solo es F cuando AMBOS son F."},
+  {q:"La disyunción EXCLUSIVA 'o bien A o bien B' es verdadera cuando…",ops:["Al menos uno es V","Ambos son V","UNO y SOLO UNO es V","Ninguno es V"],c:2,cat:"Disyunción",fb:"Disyunción exclusiva: V cuando uno y solo uno es V. Si ambos son V → F. Si ambos son F → F. La expresión 'o bien… o bien' la distingue."},
+  {q:"El condicional 'Si A entonces B' es FALSO solo cuando…",ops:["A es F y B es V","A es V y B es V","A es V y B es F","A es F y B es F"],c:2,cat:"Condicional",fb:"El condicional es F SOLO cuando el antecedente es V y el consecuente es F. En todos los demás casos es V (incluso F→F y F→V son verdaderos)."},
+  {q:"'Si llueve, el piso se moja. El piso está seco. ¿Qué podemos concluir?' Evaluando el condicional, ¿fue falso?",ops:["Sí, porque el piso está seco","No, porque el antecedente puede ser falso y el condicional seguir siendo verdadero","Sí, porque la conclusión es falsa","No hay suficiente información"],c:1,cat:"Condicional",fb:"El condicional 'Si llueve→ piso mojado' NO es falso solo porque el piso esté seco. Si el piso está seco, posiblemente no llovió (antecedente falso), y un condicional con antecedente F es VERDADERO."},
+  {q:"El bicondicional 'A siempre y cuando B' es verdadero cuando…",ops:["A es V","B es V","Ambos tienen el mismo valor de verdad (ambos V o ambos F)","Siempre"],c:2,cat:"Bicondicional",fb:"Bicondicional: V cuando ambos tienen el mismo valor de verdad (VV o FF). F cuando tienen valores distintos (VF o FV). Expresiones: 'si y solo si', 'siempre y cuando'."},
+  {q:"¿Qué es una tautología?",ops:["Siempre F por su estructura","V según el contexto del mundo","Necesariamente V por su ESTRUCTURA, sin importar el mundo","Un argumento con premisas inválidas"],c:2,cat:"Modalidad",fb:"Tautología: siempre V por la forma/estructura lógica, no por el contenido. Ejemplo: 'Hoy llueve o no llueve' — no hay escenario posible donde sea F."},
+  {q:"¿Qué es una contradicción lógica?",ops:["V según el contexto","Necesariamente F por su ESTRUCTURA","Lo mismo que tautología pero más compleja","Un argumento con premisas falsas"],c:1,cat:"Modalidad",fb:"Contradicción: siempre F por estructura. 'Hace frío y no hace frío' — imposible que sea V. La negación de una contradicción es siempre una tautología."},
+  {q:"'El micelio crece debajo del suelo o no es la parte vegetativa del hongo.' Dado que AMBAS partes son verdaderas, ¿qué tipo de enunciado es?",ops:["Falso porque usa 'o'","Verdadero — es disyunción inclusiva con al menos un disyunto V","Falso — disyunción exclusiva con ambos V","Contingente pero falso en este caso"],c:1,cat:"Disyunción",fb:"Disyunción INCLUSIVA (usa 'o'): V cuando al menos uno de los disyuntos es V. Si ambos son V → también V. En disyunción exclusiva sería F cuando ambos son V, pero esta es inclusiva."},
+  {q:"Negación de tautología = ?",ops:["Otra tautología","Contingencia","Contradicción","Depende del contexto"],c:2,cat:"Modalidad",fb:"La negación invierte los valores de verdad. Una tautología es siempre V → su negación es siempre F = contradicción. Del mismo modo, negación de contradicción = tautología."},
+  {q:"'El micelio es la parte vegetativa del hongo y no es la parte vegetativa del hongo.' Esto es…",ops:["Contingencia","Tautología","Contradicción","Condicional falso"],c:2,cat:"Modalidad",fb:"'A y No A' es una CONTRADICCIÓN clásica — siempre F por estructura. No importa qué diga A; nada puede ser V y F al mismo tiempo."},
+  {q:"'El micelio es la parte vegetativa del hongo o no es la parte vegetativa del hongo.' Esto es…",ops:["Contingencia","Tautología","Contradicción","Condicional verdadero"],c:1,cat:"Modalidad",fb:"'A o No A' es una TAUTOLOGÍA clásica — siempre V por estructura. Una de las dos opciones siempre será verdadera; no hay escenario donde ambas sean F."}
 ]},
-{name:"Evaluación deductiva y reglas",emoji:"⚖️",questions:[
-  {q:"Un argumento deductivo es VÁLIDO cuando…",ops:["Las premisas son todas V","Es imposible que las P sean V y la C sea F","La conclusión parece razonable","Tiene muchas premisas"],c:1,cat:"Validez",fb:"Validez: si las P son V, la C NECESARIAMENTE también lo es. No puede haber P verdaderas y C falsa al mismo tiempo."},
-  {q:"Un argumento es SÓLIDO cuando…",ops:["Es válido y además tiene premisas verdaderas","Tiene muchas premisas bien redactadas","La conclusión parece razonable","Es un argumento inductivo fuerte"],c:0,cat:"Solidez",fb:"SÓLIDO = VÁLIDO + PREMISAS VERDADERAS. Solo un argumento sólido garantiza que la C también es verdadera."},
-  {q:"¿Puede un argumento VÁLIDO ser criticado?",ops:["No, la validez lo hace irrefutable","Sí — se puede cuestionar la verdad de sus premisas","Solo si es muy corto","Solo si la conclusión es falsa"],c:1,cat:"Validez",fb:"Sí. La validez garantiza transmisión de verdad, no que las P sean efectivamente verdaderas. Se puede atacar un argumento válido cuestionando sus premisas."},
-  {q:"MODUS PONENS: 'Si A entonces B. A. ∴'",ops:["No A","No B","B","A y B juntos"],c:2,cat:"Reglas",fb:"MP: dado el condicional + el antecedente → se concluye el consecuente. Si A→B y A, entonces B."},
-  {q:"MODUS TOLLENS: 'Si A entonces B. No B. ∴'",ops:["A es verdadero","No A","B es verdadero","A y B son verdaderos"],c:1,cat:"Reglas",fb:"MT: si el condicional es V y el consecuente es F → el antecedente también es F. Si A→B y ¬B, entonces ¬A."},
-  {q:"SILOGISMO HIPOTÉTICO: 'Si A→B. Si B→C. ∴'",ops:["Si A→B","Si B→A","Si A→C","Si C→A"],c:2,cat:"Reglas",fb:"Silogismo Hipotético: concatena condicionales. Consecuente del primero = antecedente del segundo → se concluye: antecedente del primero → consecuente del segundo."},
-  {q:"SILOGISMO DISYUNTIVO: 'A o B. No A. ∴'",ops:["A es verdadero","A y B son verdaderos","B es verdadero","No B"],c:2,cat:"Reglas",fb:"Si hay una disyunción y un disyunto es F → el otro debe ser V. 'A o B. ¬A. → B'."},
-  {q:"INSTANCIACIÓN DEL UNIVERSAL: 'Todas las estrellas tienen luz propia. El Sol es una estrella. ∴'",ops:["Todas las estrellas son como el Sol","El Sol tiene luz propia","El Sol no tiene luz propia","Algunas estrellas tienen luz propia"],c:1,cat:"Reglas",fb:"Instanciación del universal: 'Todos los R son P. X es R. → X es P.' Se aplica una propiedad universal a un caso individual."},
-  {q:"PRUEBA POR ABSURDO: ¿cuál es el primer paso?",ops:["Demostrar que las premisas son V","Suponer lo CONTRARIO de lo que se quiere probar","Aplicar Modus Ponens directamente","Buscar una disyunción en las premisas"],c:1,cat:"Reglas",fb:"La prueba por absurdo supone lo CONTRARIO de la C. Si de ese supuesto se deriva una contradicción, se rechaza el supuesto y se afirma la C original."},
-  {q:"SIMPLIFICACIÓN y ADJUNCIÓN: de 'A y B' puedo inferir A. Si tengo A y B por separado, puedo inferir…",ops:["A o B","A implica B","A y B como conjunción","No A"],c:2,cat:"Reglas",fb:"SIMPLIFICACIÓN: 'A∧B' → A (o B). ADJUNCIÓN: si A y B son V por separado, su conjunción 'A∧B' también es V."}
+{name:"Argumentos deductivos y reglas",questions:[
+  {q:"Un argumento deductivo es VÁLIDO cuando…",ops:["Las premisas son todas V","Es imposible que las premisas sean V y la conclusión F","La conclusión parece razonable","Tiene muchas premisas"],c:1,cat:"Validez",fb:"Validez: si las P son V, la C NECESARIAMENTE también lo es. No puede haber P verdaderas y C falsa. La validez depende de la FORMA, no del contenido."},
+  {q:"Un argumento SÓLIDO es aquel que…",ops:["Es válido y tiene premisas verdaderas","Tiene una conclusión verdadera","Tiene muchas premisas bien redactadas","Es un argumento inductivo fuerte"],c:0,cat:"Solidez",fb:"SÓLIDO = VÁLIDO + PREMISAS VERDADERAS. Solo un argumento sólido garantiza necesariamente que la conclusión también es verdadera."},
+  {q:"¿Puede un argumento VÁLIDO tener premisas FALSAS?",ops:["No, las premisas deben ser verdaderas","Sí — la validez depende de la forma, no de si las premisas son verdaderas","Solo en argumentos inductivos","Solo si la conclusión también es falsa"],c:1,cat:"Validez",fb:"SÍ. Un argumento válido puede tener premisas falsas. En ese caso, no podemos garantizar el valor de la conclusión (puede ser V o F). Lo que no puede pasar en un argumento válido: P verdaderas y C falsa."},
+  {q:"'Si la levadura crece metabolizando azúcares, entonces es un hongo. Pero NO es un hongo. ∴ la levadura NO crece metabolizando azúcares.' ¿Qué forma es esta?",ops:["Modus Ponens","Modus Tollens","Silogismo Disyuntivo","Instanciación Universal"],c:1,cat:"Reglas",fb:"MODUS TOLLENS: Si A→B. ¬B. ∴ ¬A. Se niega el CONSECUENTE → se concluye la negación del antecedente. Es VÁLIDO."},
+  {q:"'Si estudiás, aprobás. Estudiaste. ∴ Aprobaste.' ¿Qué forma es esta?",ops:["Modus Tollens","Silogismo Hipotético","Modus Ponens","Instanciación Universal"],c:2,cat:"Reglas",fb:"MODUS PONENS: Si A→B. A. ∴ B. Se afirma el antecedente → se concluye el consecuente. Es VÁLIDO."},
+  {q:"'Las setas crecen enraizándose en seres humanos o plantas. Pero no crecen en seres humanos. ∴ Crecen en plantas.' ¿Qué forma es esta?",ops:["Modus Ponens","Silogismo Disyuntivo","Modus Tollens","Silogismo Hipotético"],c:1,cat:"Reglas",fb:"SILOGISMO DISYUNTIVO: A o B. ¬A. ∴ B. Si hay una disyunción y un disyunto es F → el otro debe ser V. Es VÁLIDO."},
+  {q:"SILOGISMO HIPOTÉTICO: 'Si A→B. Si B→C. ∴'",ops:["Si A→B","Si B→A","Si A→C","Si C→A"],c:2,cat:"Reglas",fb:"Silogismo Hipotético: concatena condicionales. El consecuente del primero es el antecedente del segundo → se concluye antecedente del primero → consecuente del segundo. Si A→B y B→C, entonces A→C."},
+  {q:"'Todos los hongos producen esporas. El champiñón es un hongo. ∴' ¿Qué concluimos?",ops:["Todos los champiñones son hongos","Algunos hongos producen esporas","El champiñón produce esporas","El champiñón no produce esporas"],c:2,cat:"Reglas",fb:"INSTANCIACIÓN DEL UNIVERSAL: Todos los R son P. X es R. → X es P. Se aplica una propiedad universal a un caso individual. Es VÁLIDO."},
+  {q:"'Si un argumento es válido entonces es sólido.' ¿Es verdadero o falso, y por qué?",ops:["Verdadero — si es válido la conclusión debe ser verdadera","Verdadero — si es válido las premisas deben ser verdaderas","Falso — los argumentos válidos pueden tener premisas falsas y conclusión verdadera, y los sólidos no","Falso — los argumentos válidos pueden tener premisas verdaderas y conclusión falsa"],c:2,cat:"Solidez",fb:"FALSO. Un argumento válido PUEDE tener premisas falsas (en cuyo caso no es sólido). Todo argumento sólido ES válido, pero no todo argumento válido es sólido."},
+  {q:"'Si un argumento es sólido entonces es válido.' ¿Verdadero o falso?",ops:["Verdadero — un argumento sólido no tiene contraejemplos","Verdadero — los sólidos tienen conclusión verdadera","Falso — los sólidos pueden tener premisas falsas","Falso — los válidos no pueden tener conclusión verdadera"],c:0,cat:"Solidez",fb:"VERDADERO. Por definición, un argumento sólido es VÁLIDO + premisas verdaderas. Todo argumento sólido es válido; no hay argumentos sólidos que no sean válidos."},
+  {q:"Prueba por ABSURDO: ¿cuál es el primer paso?",ops:["Demostrar que las premisas son V","Suponer lo CONTRARIO de lo que se quiere probar","Aplicar Modus Ponens directamente","Buscar una disyunción en las premisas"],c:1,cat:"Reglas",fb:"La prueba por absurdo supone lo CONTRARIO de la C. Si de ese supuesto se deriva una contradicción con las premisas, se rechaza el supuesto y se afirma la C original."},
+  {q:"SIMPLIFICACIÓN: de 'A y B' puedo inferir…",ops:["A o B","Solo A (o solo B)","A implica B","No A"],c:1,cat:"Reglas",fb:"SIMPLIFICACIÓN: de la conjunción 'A∧B' puedo inferir A, o bien B, por separado. ADJUNCIÓN es la inversa: si tengo A y tengo B por separado, puedo inferir 'A∧B'."}
 ]},
-{name:"Falacias — el nivel que más necesitás 🚨",emoji:"🚫",questions:[
-  {q:"¿Qué es una FALACIA en lógica?",ops:["Un argumento con premisas muy difíciles","Un argumento INVÁLIDO que parece válido — sus P pueden ser V pero no garantizan la C","Un error de ortografía en el texto","Un argumento con demasiadas premisas"],c:1,cat:"Falacias",fb:"Una falacia es un argumento INVÁLIDO pero que parece válido. Siempre se puede construir un contraejemplo: caso con P verdaderas y C falsa."},
-  {q:"¿Cuál es la estructura de la FALACIA DE AFIRMACIÓN DEL CONSECUENTE (AFC)?",ops:["Si A→B. A. ∴ B","Si A→B. No B. ∴ No A","Si A→B. B. ∴ A","Si A→B. Si B→C. ∴ Si A→C"],c:2,cat:"Falacias",fb:"AFC: Si A→B. B. ∴ A. INVÁLIDA porque A es SUFICIENTE para B, no NECESARIO. B puede ocurrir por otras razones distintas de A."},
-  {q:"'Si llueve, el piso está mojado. El piso está mojado. ∴ Llovió.' ¿Es válido?",ops:["Sí, es Modus Ponens","Sí, si el piso está mojado tuvo que llover","No — es AFC. El piso pudo mojarse por otra razón","Sí, es Modus Tollens"],c:2,cat:"Falacias",fb:"FALACIA DE AFIRMACIÓN DEL CONSECUENTE. El piso puede estar mojado porque alguien tiró agua, se rompió una cañería, etc."},
-  {q:"'Si Messi es tucumano, es argentino. Messi es argentino. ∴ Messi es tucumano.' ¿Qué falacia es?",ops:["Negación del antecedente","Afirmación del consecuente","Modus Tollens","Silogismo disyuntivo"],c:1,cat:"Falacias",fb:"AFC. La premisa solo dice que ser tucumano es SUFICIENTE para ser argentino, no que sea la única forma. Messi es de Rosario."},
-  {q:"'Si copio en el examen, desapruebo. Desaprobé. ∴ Copié.' ¿Por qué es incorrecto?",ops:["Es correcto — hay relación directa","Es AFC — pude desaprobar sin copiar (por no estudiar, nervios, etc.)","Es correcto, es Modus Tollens","No hay condicional en el argumento"],c:1,cat:"Falacias",fb:"AFC. Copiar era SUFICIENTE para desaprobar, no la ÚNICA forma. Podés desaprobar por muchas razones."},
-  {q:"'Si copio en el examen, desapruebo. NO desaprobé. ∴ NO copié.' ¿Qué es este argumento?",ops:["Afirmación del consecuente","Negación del antecedente","Modus Tollens — es VÁLIDO","Modus Ponens"],c:2,cat:"Falacias",fb:"¡MODUS TOLLENS y es VÁLIDO! Si copiar→desaprobar, y no desaprobé, entonces no copié. La diferencia: acá negamos el CONSECUENTE."},
-  {q:"¿Cuál es la estructura de la FALACIA DE NEGACIÓN DEL ANTECEDENTE (FNA)?",ops:["Si A→B. A. ∴ B","Si A→B. No B. ∴ No A","Si A→B. No A. ∴ No B","Si A→B. B. ∴ A"],c:2,cat:"Falacias",fb:"FNA: Si A→B. ¬A. ∴ ¬B. INVÁLIDA porque A es suficiente para B, no necesario. Negar A no implica negar B."},
-  {q:"'Si estudiás, aprobás. No estudiaste. ∴ No aprobaste.' ¿Es válido?",ops:["Sí, sin estudiar no podés aprobar","No — FNA. Podés aprobar sin estudiar","Sí, es Modus Tollens","Sí, es Modus Ponens"],c:1,cat:"Falacias",fb:"FNA. La premisa dice que estudiar es SUFICIENTE para aprobar, no que sea lo ÚNICO. Podés aprobar por otras razones."},
-  {q:"'Si Messi es tucumano, es argentino. Messi NO es tucumano. ∴ Messi NO es argentino.' ¿Qué problema tiene?",ops:["Ninguno, es válido","FNA — Messi puede ser argentino sin ser tucumano","Es válido porque la conclusión es falsa","Es AFC — afirma el consecuente"],c:1,cat:"Falacias",fb:"FNA. Ser tucumano es UNA FORMA de ser argentino, no la única. Que A sea F no implica que B sea F."},
-  {q:"'Si es de día, hay luz. No hay luz. ∴ No es de día.' ¿Es válido o falacia?",ops:["FNA — falacia","AFC — falacia","VÁLIDO — Modus Tollens","Modus Ponens"],c:2,cat:"Falacias",fb:"¡MODUS TOLLENS — es VÁLIDO! Negamos el CONSECUENTE (no hay luz) → concluimos ¬antecedente (no es de día). FNA sería: negar que es de día para concluir que no hay luz."},
-  {q:"¿Cuál es la diferencia CLAVE entre Modus Tollens (válido) y la FNA (inválida)?",ops:["En MT se niega el antecedente; en FNA se niega el consecuente","En MT se niega el CONSECUENTE → ¬antecedente; en FNA se niega el ANTECEDENTE → ¬consecuente","No hay diferencia real entre ellos","En MT se usa 'por lo tanto'; en FNA no se usa"],c:1,cat:"Falacias",fb:"CLAVE: MT niega el CONSECUENTE → ¬antecedente (válido). FNA niega el ANTECEDENTE → ¬consecuente (inválido). En A→B, negar A no te dice nada sobre B."},
-  {q:"Un CONTRAEJEMPLO para demostrar la invalidez de una forma de argumento es…",ops:["Un argumento que prueba que las premisas son falsas","Un ejemplo con P verdaderas y C FALSA — prueba que la forma es inválida","Un argumento con muchas premisas largas","Un argumento que contradice a otro argumento"],c:1,cat:"Falacias",fb:"El contraejemplo es la herramienta para demostrar invalidez. Si encontrás un caso con esa estructura donde las P son V y la C es F → el argumento es inválido."},
-  {q:"¿Cuál es la diferencia entre AFC y FNA?",ops:["Son exactamente lo mismo","AFC: B→A (afirmar consecuente da antecedente). FNA: ¬A→¬B (negar antecedente da negación del consecuente). Ambas inválidas.","AFC es válida y FNA no lo es","FNA es más grave lógicamente que AFC"],c:1,cat:"Falacias",fb:"AFC: Si A→B. B. ∴ A. FNA: Si A→B. ¬A. ∴ ¬B. Ambas fallan porque el condicional solo dice que A es SUFICIENTE para B."}
+{name:"Falacias — el nivel que más importa 🚨",questions:[
+  {q:"¿Qué es una FALACIA en lógica?",ops:["Un argumento con premisas muy difíciles","Un argumento INVÁLIDO que parece válido — las P pueden ser V pero no garantizan la C","Un error de ortografía en el texto","Un argumento con demasiadas premisas"],c:1,cat:"Falacias",fb:"Una falacia es un argumento INVÁLIDO que PARECE válido. Siempre se puede construir un contraejemplo: P verdaderas y C falsa."},
+  {q:"Estructura de la FALACIA DE AFIRMACIÓN DEL CONSECUENTE (AFC):",ops:["Si A→B. A. ∴ B","Si A→B. ¬B. ∴ ¬A","Si A→B. B. ∴ A","Si A→B. Si B→C. ∴ Si A→C"],c:2,cat:"AFC",fb:"AFC: Si A→B. B. ∴ A. INVÁLIDA porque A es SUFICIENTE para B, no NECESARIO. B puede ocurrir por razones distintas de A. Se confunde con el MP (que usa A, no B)."},
+  {q:"'Si llueve, el piso está mojado. El piso está mojado. ∴ Llovió.' ¿Es válido?",ops:["Sí, es Modus Ponens","Sí, si el piso está mojado tuvo que llover","No — es AFC. El piso pudo mojarse por otra razón","Sí, es Modus Tollens"],c:2,cat:"AFC",fb:"FALACIA DE AFIRMACIÓN DEL CONSECUENTE. El piso puede estar mojado porque alguien tiró agua, se rompió una cañería, etc. La relación del condicional va en un solo sentido."},
+  {q:"'Si Messi es tucumano, es argentino. Messi es argentino. ∴ Messi es tucumano.' ¿Qué falacia es?",ops:["Negación del antecedente","Afirmación del consecuente","Modus Tollens","Silogismo disyuntivo"],c:1,cat:"AFC",fb:"AFC. La premisa solo dice que ser tucumano es SUFICIENTE para ser argentino, no que sea la única forma de serlo. Messi es de Rosario."},
+  {q:"Estructura de la FALACIA DE NEGACIÓN DEL ANTECEDENTE (FNA):",ops:["Si A→B. A. ∴ B","Si A→B. ¬B. ∴ ¬A","Si A→B. ¬A. ∴ ¬B","Si A→B. B. ∴ A"],c:2,cat:"FNA",fb:"FNA: Si A→B. ¬A. ∴ ¬B. INVÁLIDA porque A es suficiente para B, no necesario. Negar A no dice nada sobre B. Se confunde con el MT (que niega B, no A)."},
+  {q:"'Si estudiás, aprobás. No estudiaste. ∴ No aprobaste.' ¿Es válido?",ops:["Sí, sin estudiar no podés aprobar","No — FNA. Podés aprobar sin estudiar","Sí, es Modus Tollens","Sí, es Modus Ponens"],c:1,cat:"FNA",fb:"FNA. La premisa dice que estudiar es SUFICIENTE para aprobar, no que sea lo ÚNICO. Podés aprobar por otras razones."},
+  {q:"'Si Messi es tucumano, es argentino. Messi NO es tucumano. ∴ Messi NO es argentino.' ¿Qué problema tiene?",ops:["Ninguno, es válido","FNA — Messi puede ser argentino sin ser tucumano","Es válido porque la conclusión es falsa","Es AFC"],c:1,cat:"FNA",fb:"FNA. Ser tucumano es UNA FORMA de ser argentino, no la única. Que A sea F no implica que B sea F."},
+  {q:"'Si es de día, hay luz. No hay luz. ∴ No es de día.' ¿Es válido o falacia?",ops:["FNA — falacia","AFC — falacia","Modus Tollens — VÁLIDO","Modus Ponens"],c:2,cat:"MT vs FNA",fb:"¡MODUS TOLLENS — VÁLIDO! Negamos el CONSECUENTE (no hay luz) → concluimos ¬antecedente (no es de día). FNA sería: negar que es de día para concluir que no hay luz."},
+  {q:"¿Cuál es la diferencia CLAVE entre Modus Tollens (válido) y la FNA (inválida)?",ops:["En MT se niega el antecedente; en FNA se niega el consecuente","En MT se niega el CONSECUENTE → ¬antecedente (válido). En FNA se niega el ANTECEDENTE → ¬consecuente (inválido)","No hay diferencia real","En MT se usa 'por lo tanto'"],c:1,cat:"MT vs FNA",fb:"CLAVE: MT niega el CONSECUENTE → concluye ¬antecedente (válido). FNA niega el ANTECEDENTE → concluye ¬consecuente (inválido). En A→B, negar A no te dice nada sobre B."},
+  {q:"'Si la trufa negra es abundante, tiene bajo costo. Pero la trufa negra NO es abundante. ∴ No tiene bajo costo.' ¿Es esto válido?",ops:["Sí, es Modus Tollens","No, es FNA — podría tener bajo costo por otra razón","Sí, es Modus Ponens","No, es AFC"],c:1,cat:"FNA",fb:"FNA. La premisa dice que ser abundante es SUFICIENTE para tener bajo costo. Que NO sea abundante no implica que NO tenga bajo costo — podría haberlo por subsidios, importaciones, etc."},
+  {q:"'Si los hongos descomponen materia orgánica, entonces circulan nutrientes. LOS hongos circulan nutrientes. ∴ Los hongos descomponen materia orgánica.' ¿Es válido?",ops:["Sí, es Modus Ponens","No, es AFC — podrían circular nutrientes de otra manera","Sí, es Modus Tollens","No, es FNA"],c:1,cat:"AFC",fb:"AFC. Se afirma el CONSECUENTE (circulan nutrientes) para concluir el antecedente (descomponen materia orgánica). Pero los hongos podrían circular nutrientes por otras vías."},
+  {q:"Un CONTRAEJEMPLO para demostrar la invalidez de una forma de argumento es…",ops:["Un argumento que prueba que las premisas son falsas","Un ejemplo con P verdaderas y C FALSA — prueba que la forma es inválida","Un argumento con muchas premisas largas","Un argumento que contradice otro argumento"],c:1,cat:"Falacias",fb:"El contraejemplo es la herramienta para demostrar invalidez. Si encontrás un caso con esa estructura donde las P son V y la C es F → el argumento es inválido."}
 ]},
-{name:"Argumentos Inductivos",emoji:"📊",questions:[
-  {q:"¿Qué caracteriza a todos los argumentos inductivos?",ops:["Las premisas garantizan la conclusión de forma necesaria","Las premisas ofrecen apoyo PARCIAL a la C — no la garantizan","Siempre usan porcentajes estadísticos","Son siempre más débiles que los deductivos"],c:1,cat:"Inductivo",fb:"En los inductivos las razones no son concluyentes. Se habla de argumentos FUERTES o DÉBILES (no válidos/inválidos). La fortaleza es cuestión de grado."},
-  {q:"¿Qué hace un argumento por ANALOGÍA?",ops:["Generaliza a partir de casos observados a toda la clase","A partir de semejanzas relevantes, infiere que el CASO PRÓXIMO también tendrá una propiedad compartida","Aplica una estadística a un individuo concreto","Deduce una conclusión necesaria a partir de premisas"],c:1,cat:"Analogía",fb:"Analogía: casos X1, X2 comparten F, G, Z. Xn comparte F, G. → Xn también tendrá Z. La conclusión habla del CASO PRÓXIMO, no de toda la clase."},
-  {q:"¿Qué hace un argumento por ENUMERACIÓN INCOMPLETA?",ops:["Compara dos casos y transfiere una propiedad","Recoge casos observados y GENERALIZA a toda la clase","Aplica una estadística a un individuo concreto","Deduce un caso de una ley universal"],c:1,cat:"Enumeración",fb:"Enumeración: 'X1 es Z, X2 es Z... → Todos los X son Z.' La conclusión habla de TODA LA CLASE — va más allá de los casos observados."},
-  {q:"¿Cuál es la diferencia CLAVE entre analogía y enumeración?",ops:["En analogía se generaliza a toda la clase","En analogía la C habla del CASO PRÓXIMO; en enumeración la C habla de TODA LA CLASE","Son exactamente lo mismo","La enumeración siempre usa estadísticas"],c:1,cat:"Tipos",fb:"La conclusión es la pista: '¿El pomelo tiene vit. C?' (analogía, caso próximo) vs 'Todos los cítricos tienen vit. C' (enumeración, toda la clase)."},
+{name:"Argumentos Inductivos",questions:[
+  {q:"¿Qué caracteriza a TODOS los argumentos inductivos?",ops:["Las premisas garantizan la conclusión necesariamente","Las premisas ofrecen apoyo PARCIAL — no garantizan la C","Siempre usan porcentajes estadísticos","Son siempre más débiles que los deductivos"],c:1,cat:"Inductivo",fb:"En los inductivos las razones no son concluyentes. Se habla de argumentos FUERTES o DÉBILES (no válidos/inválidos). La fortaleza es cuestión de grado."},
+  {q:"¿Qué hace un argumento por ANALOGÍA?",ops:["Generaliza de casos observados a TODA la clase","A partir de semejanzas relevantes, infiere que el CASO PRÓXIMO también tendrá una propiedad compartida","Aplica una estadística a un individuo concreto","Deduce una conclusión necesaria de premisas"],c:1,cat:"Analogía",fb:"Analogía: casos X1, X2 comparten F, G, Z. Xn comparte F, G. → Xn también tendrá Z. La conclusión habla del CASO PRÓXIMO (un individuo específico), no de toda la clase."},
+  {q:"¿Qué hace un argumento por ENUMERACIÓN INCOMPLETA?",ops:["Compara dos casos y transfiere una propiedad","Recoge casos observados y GENERALIZA a TODA la clase","Aplica una estadística a un individuo","Deduce un caso de una ley universal"],c:1,cat:"Enumeración",fb:"Enumeración: 'X1 es Z, X2 es Z, X3 es Z... → Todos los X son Z.' La conclusión habla de TODA LA CLASE — va más allá de los casos observados."},
+  {q:"¿Cuál es la diferencia CLAVE entre analogía y enumeración?",ops:["En analogía se generaliza a toda la clase","En analogía la C habla del CASO PRÓXIMO; en enumeración la C habla de TODA LA CLASE","Son exactamente lo mismo","La enumeración siempre usa estadísticas"],c:1,cat:"Tipos",fb:"La conclusión revela el tipo: '¿El pomelo tiene vitamina C?' (analogía, caso próximo) vs 'Todos los cítricos tienen vitamina C' (enumeración, toda la clase)."},
   {q:"¿Qué es un SILOGISMO INDUCTIVO?",ops:["Enumera muchos casos y generaliza a toda la clase","Compara casos similares para inferir el próximo","Generalización estadística + caso individual → conclusión probable","Un argumento deductivo con premisas probables"],c:2,cat:"Silogismo",fb:"Silogismo inductivo: 'El N% de los F son G. X es F. → X es G (probablemente).' La conclusión es más probable cuanto mayor sea la frecuencia relativa."},
-  {q:"Para FORTALECER un argumento por analogía…",ops:["Aumentar la cantidad de conclusiones","Agregar más aspectos RELEVANTES compartidos, o más casos comparados","Reemplazar las premisas por tautologías","Usar lenguaje más técnico y formal"],c:1,cat:"Analogía",fb:"Se fortalece con: (1) más semejanzas RELEVANTES y (2) más casos. Las semejanzas deben ser relevantes para la propiedad inferida."},
-  {q:"Para FORTALECER un argumento por enumeración incompleta…",ops:["Cambiar la conclusión a una más débil","Ampliar la muestra y asegurarse de que sea REPRESENTATIVA","Agregar una premisa estadística al argumento","Convertirlo en un argumento deductivo"],c:1,cat:"Enumeración",fb:"Se fortalece con muestra amplia y REPRESENTATIVA. Una muestra sesgada (solo de Facebook, solo de Buenos Aires) debilita el argumento."},
-  {q:"Para FORTALECER un silogismo inductivo…",ops:["Llevar la estadística al 100% exacto","Aumentar la frecuencia relativa sin llegar al 100%","Agregar más casos individuales al argumento","Eliminar la generalización estadística"],c:1,cat:"Silogismo",fb:"Se fortalece aumentando el porcentaje/frecuencia relativa. Al llegar al 100% se convertiría en deductivo."}
+  {q:"Para FORTALECER un argumento por analogía…",ops:["Aumentar la cantidad de conclusiones","Agregar más SEMEJANZAS RELEVANTES compartidas, o más casos comparados","Reemplazar las premisas por tautologías","Usar lenguaje más técnico"],c:1,cat:"Analogía",fb:"Se fortalece con: (1) más semejanzas RELEVANTES y (2) más casos comparados. Las semejanzas deben ser relevantes para la propiedad inferida."},
+  {q:"Para FORTALECER un argumento por enumeración…",ops:["Cambiar la conclusión a una más débil","Ampliar la muestra y asegurarse de que sea REPRESENTATIVA","Agregar una premisa estadística","Convertirlo en deductivo"],c:1,cat:"Enumeración",fb:"Se fortalece con muestra amplia y REPRESENTATIVA. Una muestra sesgada (solo de Buenos Aires, solo de Facebook) debilita el argumento."},
+  {q:"Para FORTALECER un silogismo inductivo…",ops:["Llevar la estadística al 100% exacto","Aumentar la frecuencia relativa SIN llegar al 100%","Agregar más casos individuales","Eliminar la generalización estadística"],c:1,cat:"Silogismo",fb:"Se fortalece aumentando el porcentaje/frecuencia relativa. Al llegar al 100% se convertiría en deductivo (instanciación universal)."},
+  {q:"'Las gírgolas, portobellos y trufas negras son hongos comestibles con gran valor nutricional. ∴ Todos los hongos comestibles tienen gran valor nutricional.' Para fortalecer SIN que deje de ser enumeración, agrego:",ops:["Las gírgolas, portobellos y trufas son los únicos tipos de hongos comestibles","El níscalo posee gran valor nutricional","El níscalo es un hongo comestible con gran valor nutricional","El champiñón es un hongo comestible"],c:2,cat:"Enumeración",fb:"Para fortalecer la enumeración, agrego OTRO CASO a la muestra: el níscalo como hongo comestible con valor nutricional. Opción A haría el argumento deductivo. Opción B no habla de ser comestible. Opción D no dice nada del valor nutricional."},
+  {q:"'El 90% de los organismos del reino Fungi se alimenta de materia orgánica. El champiñón es del reino Fungi. ∴ El champiñón se alimenta de materia orgánica.' Para fortalecer SIN que deje de ser silogismo inductivo:",ops:["Que el champiñón es un hongo terrestre","Que el 100% de los Fungi se alimenta de materia orgánica","Que el 95% de los Fungi se alimenta de materia orgánica","Que todos los organismos del reino Fungi son saprofitos"],c:2,cat:"Silogismo",fb:"Se fortalece aumentando la frecuencia relativa al 95%. Al 100% se volvería deductivo. Opciones A, B y D no fortalecen la estructura inductiva estadística correctamente."}
 ]},
-{name:"Geometría y Sistemas Axiomáticos",emoji:"📐",questions:[
-  {q:"¿Cuál fue la principal contribución de Tales de Mileto?",ops:["Inventó el cálculo diferencial","Formuló tratamientos GENERALES de problemas — no solo soluciones particulares","Construyó el primer sistema axiomático completo","Negó el quinto postulado de Euclides"],c:1,cat:"Geometría",fb:"Tales formulaba PROPIEDADES GENERALES aplicables a cualquier caso. Esto permitió que la geometría pase de ser práctica a ser teórica y abstracta."},
-  {q:"¿Qué significa 'sistematizar' como hizo Euclides?",ops:["Resolver muchos problemas concretos aislados","Presentar enunciados articulados entre sí, donde unos se deducen de otros","Memorizar todos los teoremas disponibles","Aplicar la geometría a la arquitectura"],c:1,cat:"Geometría",fb:"Sistematizar = presentar enunciados organizados donde unos se demuestran a partir de otros deductivamente. No son enunciados sueltos."},
-  {q:"En el método axiomático clásico, los axiomas/postulados son…",ops:["Teoremas que se demuestran a partir de otros","Verdades evidentes que se aceptan SIN demostración","Definiciones de los términos usados","Reglas para dibujar figuras geométricas"],c:1,cat:"Axiomas",fb:"Los axiomas/postulados son puntos de partida que se aceptan SIN demostración. A partir de ellos se obtienen los teoremas por razonamiento deductivo."},
-  {q:"El quinto postulado de Euclides en versión Playfair dice…",ops:["Los ángulos rectos son iguales entre sí","Desde un punto a otro se puede trazar una recta","Por un punto exterior a una recta, existe UNA ÚNICA paralela","Una recta se puede prolongar indefinidamente"],c:2,cat:"Axiomas",fb:"Playfair: 'Por un punto exterior a una recta, puede trazarse UNA ÚNICA paralela.' Este fue el postulado más problemático y generó las geometrías no euclidianas."},
-  {q:"La geometría HIPERBÓLICA (Gauss-Bolyai-Lobachevski) dice que por un punto exterior hay…",ops:["Una única paralela","Ninguna paralela posible","Infinitas paralelas","Depende del ángulo del punto"],c:2,cat:"Geometrías",fb:"Geometría hiperbólica: INFINITAS paralelas. Suma de ángulos de un triángulo: MENOR a 180°. Recta: infinita. Es consistente — no lleva a ninguna contradicción."},
-  {q:"En la geometría ELÍPTICA (Riemann), ¿cuántas paralelas existen por un punto exterior?",ops:["Una única paralela","Infinitas paralelas","Ninguna paralela","Depende del contexto"],c:2,cat:"Geometrías",fb:"Geometría elíptica: NINGUNA paralela. Suma de ángulos de un triángulo: MAYOR a 180°. Recta: cerrada (finita)."},
-  {q:"¿Cuál es la suma de ángulos de un triángulo en Euclídea / Hiperbólica / Elíptica?",ops:["180° en las tres geometrías","180°, mayor a 180°, menor a 180°","180°, menor a 180°, mayor a 180°","Depende del tamaño del triángulo"],c:2,cat:"Geometrías",fb:"Euclídea: 180°. Hiperbólica: MENOR a 180°. Elíptica: MAYOR a 180°."},
-  {q:"En los sistemas axiomáticos MODERNOS, los axiomas son…",ops:["Verdades evidentes y universales","Constructos formales aceptados por convención — no son V ni F hasta ser interpretados","Siempre verdaderos en cualquier sistema","Los mismos en todos los sistemas posibles"],c:1,cat:"Axiomas",fb:"En la concepción contemporánea, los axiomas son estructuras formales. Solo cuando el sistema se interpreta se puede hablar de V o F."},
-  {q:"INDEPENDENCIA de un sistema axiomático significa…",ops:["Todos los axiomas son verdaderos","Ningún axioma puede derivarse de los otros — si pudiera, sería un teorema","Todos los teoremas son demostrables dentro del sistema","El sistema describe la realidad física"],c:1,cat:"Axiomas",fb:"INDEPENDENCIA: un axioma es independiente si no se puede deducir del resto. Si un axioma pudiera deducirse de los otros, pasaría a ser un teorema."},
-  {q:"CONSISTENCIA de un sistema axiomático significa…",ops:["Todos los axiomas son verdaderos","No se puede probar A y ¬A al mismo tiempo dentro del sistema","Todos los teoremas son demostrables","El sistema describe correctamente la realidad"],c:1,cat:"Axiomas",fb:"CONSISTENCIA: el sistema no admite que se prueben A y ¬A simultáneamente. Si pudiera, admitiría falsedades. Es un requisito necesario."},
-  {q:"¿Por qué se necesitan axiomas para evitar la REGRESIÓN AL INFINITO?",ops:["Para que los axiomas sean más fáciles de entender","Si todo enunciado exigiera justificación con otro, el proceso no terminaría nunca — los axiomas cortan ese proceso","Porque los axiomas son más cortos que los teoremas","Para evitar que alguien los cuestione externamente"],c:1,cat:"Axiomas",fb:"REGRESIÓN AL INFINITO: si A necesita B para justificarse, y B necesita C, y así indefinidamente, nunca terminamos. Los axiomas son los puntos de partida que cortan esa cadena."}
+{name:"Darwin y Lamarck — Revolución Darwiniana",questions:[
+  {q:"Según Darwin, ¿cómo surgen los nuevos rasgos en un individuo?",ops:["Por el esfuerzo del organismo para adaptarse","De forma AZAROSA/ALEATORIA — no siempre son respuesta al ambiente","Por herencia de caracteres adquiridos","Por diseño de la naturaleza"],c:1,cat:"Darwin",fb:"Según Darwin, los rasgos nuevos aparecen de manera AZAROSA. No siempre son una respuesta al ambiente ni son necesariamente beneficiosos. Pueden ser beneficiosos, neutros o perjudiciales."},
+  {q:"En Darwin, ¿qué significa ser 'más APTO'?",ops:["Ser más fuerte o más grande","Tener mayor ÉXITO REPRODUCTIVO DIFERENCIAL — dejar más descendencia — por cualquier razón","Ser más inteligente","Ser más resistente a enfermedades"],c:1,cat:"Darwin",fb:"Aptitud en Darwin = mayor éxito reproductivo diferencial (dejar más descendencia). No hay una única forma de ser apto: puede ser por ser más fuerte, más atractivo, más longevo, etc."},
+  {q:"Según Lamarck, ¿cómo se explica el cuello largo de la jirafa?",ops:["Los ancestros con cuello más largo dejaron más descendencia","Los ancestros de las jirafas se esforzaron por alcanzar hojas altas; ese estiramiento del cuello se heredó a la descendencia","El cuello largo apareció al azar y fue seleccionado","La naturaleza diseñó a las jirafas con cuello largo"],c:1,cat:"Lamarck",fb:"Lamarck: el ambiente impone un desafío → los organismos hacen un ESFUERZO → adquieren cambios por uso/desuso → esos cambios se HEREDAN. El cuello largo se desarrolló por el uso intensivo de estirarse."},
+  {q:"'La aparición de un rasgo nuevo en un individuo siempre depende del ambiente.' ¿Verdadero o falso según Darwin?",ops:["Verdadero — siempre es respuesta al ambiente","Falso — según Darwin algunos rasgos surgen de forma ALEATORIA, independientemente del ambiente","Verdadero — siempre mejoran la aptitud","Falso — ningún rasgo depende del ambiente"],c:1,cat:"Darwin",fb:"FALSO. Darwin aceptaba que algunos rasgos pueden aparecer de manera AZAROSA, por lo que los rasgos nuevos no siempre son una respuesta al ambiente."},
+  {q:"'El pájaro carpintero tiene pico afilado que le permite perforar cortezas.' Explicación DARWINIANA:",ops:["Los pájaros carpinteros fueron creados con pico afilado para este fin","Los ancestros afilaban el pico al intentar cazar insectos y heredaron ese rasgo adquirido","Los ancestros con pico más afilado tenían ventaja → sobrevivían más → dejaban más descendencia → ese rasgo se propagó","El pico afilado es resultado puro de la lotería genética sin relación con el entorno"],c:2,cat:"Darwin",fb:"Darwin: los ancestros con pico más afilado tenían ventaja en ese entorno → mayor éxito reproductivo → la siguiente generación tiene más picos afilados. No hay esfuerzo consciente ni diseño."},
+  {q:"'El pájaro carpintero tiene pico afilado.' Explicación LAMARCKIANA:",ops:["Los ancestros con pico afilado dejaron más descendencia que heredó el rasgo","Los ancestros afilaban el pico al intentar cazar insectos bajo la corteza; ese rasgo adquirido por uso fue heredado","La naturaleza los diseñó con pico afilado para un equilibrio armonioso","El pico afilado es resultado puro del azar genético"],c:1,cat:"Lamarck",fb:"Lamarck: los rasgos adaptativos se explican por el ESFUERZO de los organismos por adaptarse. El pico se afiló por uso intensivo y ese rasgo adquirido se heredó a la descendencia."},
+  {q:"Diferencia entre el modelo evolutivo de Lamarck y el de Darwin:",ops:["Lamarck creía en la evolución; Darwin no","Lamarck: evolución LINEAL hacia mayor complejidad. Darwin: ÁRBOL con diversificación sin dirección fijada","Darwin creía en generación espontánea; Lamarck no","No hay diferencia real entre sus modelos"],c:1,cat:"Comparación",fb:"Lamarck: evolución lineal y paralela, de simples a complejos. Darwin: árbol de la vida con ancestro común y diversificación ARBITORIA — no hay una dirección fijada. La evolución es contingente."},
+  {q:"'Los nuevos rasgos que aparecen en un individuo siempre mejoran su aptitud.' ¿Verdadero o falso según Darwin?",ops:["Verdadero — siempre mejoran la aptitud","Falso — los rasgos pueden ser beneficiosos, NEUTROS o PERJUDICIALES","Verdadero — siempre son respuesta al ambiente","Falso — nunca afectan la aptitud"],c:1,cat:"Darwin",fb:"FALSO. Los nuevos rasgos pueden ser beneficiosos, NEUTROS o PERJUDICIALES. La selección natural actúa DESPUÉS: los individuos con rasgos más eficaces en ese ambiente dejan más descendencia."},
+  {q:"'Las tortugas tienen caparazón duro que las protege de depredadores.' Explicación DARWINIANA:",ops:["Las tortugas fueron creadas con caparazón duro","Los ancestros endurecieron su lomo al ser atacados y heredaron ese rasgo","Las tortugas con caparazón más duro resistían mejor → sobrevivían más → dejaban más descendencia","El caparazón es resultado puro de lotería genética"],c:2,cat:"Darwin",fb:"Darwin: los ancestros con caparazón más duro tenían ventaja en ese entorno → mayor aptitud → más descendencia → el rasgo se propaga. La selección natural NO tiene plan ni dirección."},
+  {q:"'Los perezosos tienen garras grandes que les permiten colgarse de los árboles.' Explicación LAMARCKIANA:",ops:["Los ancestros con garras más grandes dejaron más descendencia","Los ancestros de los perezosos usaban sus garras para moverse en los árboles; el uso intensivo fomentó garras más grandes, y ese rasgo se heredó","Los perezosos fueron creados con garras adaptadas para los árboles","Las garras son resultado de la lotería genética"],c:1,cat:"Lamarck",fb:"Lamarck: los rasgos adaptativos se explican por el USO (o desuso) de los órganos. El uso intensivo de las garras para trepar generó garras más grandes, y ese rasgo adquirido se heredó."},
+  {q:"'Los individuos heredan de sus progenitores solo los rasgos que favorecen su aptitud.' ¿Verdadero o falso según Darwin?",ops:["Verdadero — solo heredan los rasgos beneficiosos","Falso — los individuos heredan la MAYORÍA de los rasgos de sus progenitores, sean beneficiosos, neutros o perjudiciales","Verdadero — la selección filtra qué se hereda","Falso — no heredan ningún rasgo"],c:1,cat:"Darwin",fb:"FALSO. Según Darwin, los individuos heredan la MAYORÍA de los rasgos de sus progenitores (independientemente de si son beneficiosos o no). Los rasgos nuevos surgen por mutaciones azarosas."},
+  {q:"¿Cuáles fueron las dos fuentes de inspiración de Darwin para la selección natural?",ops:["El creacionismo y la geometría euclidiana","Malthus (lucha por supervivencia) y la selección ARTIFICIAL de ganaderos y agricultores","Lamarck y los fósiles del viaje","Newton y la mecánica clásica"],c:1,cat:"Darwin",fb:"(1) MALTHUS: el crecimiento poblacional es exponencial pero los alimentos crecen linealmente → habrá lucha por supervivencia. (2) SELECCIÓN ARTIFICIAL: ganaderos seleccionan individuos con rasgos deseados. Darwin generalizó este mecanismo a la naturaleza."}
 ]},
-{name:"Revolución Darwiniana e Historia de la Ciencia",emoji:"🌿",questions:[
-  {q:"¿Cuáles son los DOS grandes problemas del naturalista al observar la naturaleza?",ops:["El tamaño y el peso de los animales","La diversidad de especies y la adaptación de los organismos a su entorno","La extinción y la generación espontánea","La taxonomía y la nomenclatura científica"],c:1,cat:"Darwin",fb:"El naturalista enfrenta dos grandes preguntas: (1) ¿Cómo explicar la ENORME DIVERSIDAD de especies? (2) ¿Cómo explicar el EXQUISITO GRADO DE ADAPTACIÓN de cada especie a su entorno?"},
-  {q:"¿Qué afirma el CREACIONISMO frente al problema de la adaptación?",ops:["Las especies evolucionan por selección natural","Hay un diseñador inteligente que dispuso a los organismos perfectamente adaptados","Las especies se adaptan por herencia de caracteres adquiridos","La adaptación es producto del azar puro"],c:1,cat:"Darwin",fb:"El creacionismo sostiene que la exquisita adaptación de los organismos solo puede explicarse por un DISEÑADOR INTELIGENTE. Paley lo expresó con el 'argumento del relojero'."},
-  {q:"¿Qué afirma el FIJISMO sobre las especies?",ops:["Las especies evolucionan lentamente con el tiempo","Una vez creadas, las especies quedan fijas — no se transforman unas en otras","Las especies se extinguen y son reemplazadas","Las especies más complejas reemplazan a las simples"],c:1,cat:"Darwin",fb:"El FIJISMO sostiene que las especies fueron creadas de una vez y para siempre y no se transforman. El REGISTRO FÓSIL lo refuta mostrando especies intermedias y extintas."},
-  {q:"¿Cuál es la PRIMERA gran teoría de Lamarck sobre la evolución?",ops:["La herencia de caracteres adquiridos por esfuerzo","La complejidad creciente: los organismos tienden a volverse más complejos con el tiempo","La selección natural por el entorno","El origen común de todas las especies"],c:1,cat:"Lamarck",fb:"La primera gran tesis de Lamarck es la COMPLEJIDAD CRECIENTE: los organismos que surgen tienden a volverse más complejos con el tiempo (de entidades simples a humanos)."},
-  {q:"¿Cuál es la SEGUNDA gran teoría de Lamarck (la herencia de caracteres adquiridos)?",ops:["Las especies se adaptan al azar sin dirección","El ambiente plantea desafíos, los organismos hacen un ESFUERZO, adquieren cambios por uso/desuso, y los HEREDAN a su descendencia","Las especies más fuertes sobreviven siempre","Las especies con mayor reproducción se adaptan mejor"],c:1,cat:"Lamarck",fb:"Herencia de caracteres adquiridos: el ambiente propone desafíos → los organismos hacen un ESFUERZO físico → adquieren cambios por USO/DESUSO → esos cambios se HEREDAN. Ej: la jirafa estiró su cuello y eso se heredó."},
-  {q:"¿Cuál es la diferencia entre el modelo evolutivo de Lamarck y el de Darwin?",ops:["Lamarck creía en la evolución; Darwin no","Lamarck pensó la evolución como un proceso LINEAL hacia mayor complejidad; Darwin la pensó como un ÁRBOL con diversificación sin dirección fijada","Darwin creía en la generación espontánea; Lamarck no","No hay diferencia real entre sus modelos"],c:1,cat:"Darwin",fb:"LAMARCK: evolución lineal y paralela, desde simples a complejos. DARWIN: árbol de la vida con un ancestro común y diversificación ARBITORIA — no hay una dirección fijada."},
-  {q:"La teoría del ORIGEN COMÚN de Darwin explica…",ops:["Por qué los organismos se adaptan al ambiente","Por qué existen especies extintas en el registro fósil","Las HOMOLOGÍAS: por qué especies distintas comparten estructuras similares — porque descienden de un ancestro común","Por qué existen las analogías funcionales"],c:2,cat:"Darwin",fb:"Origen común: las HOMOLOGÍAS (estructuras similares entre especies distintas, como nuestro brazo y la aleta de una ballena) se explican porque esas especies comparten un ANCESTRO COMÚN."},
-  {q:"¿Cuál es la diferencia entre ANALOGÍA y HOMOLOGÍA en biología?",ops:["Son exactamente sinónimos en biología","Analogía = función similar pero estructura distinta. Homología = estructura similar pero función distinta","Homología = función similar; analogía = estructura similar","Analogía es un concepto más antiguo que homología"],c:1,cat:"Darwin",fb:"ANALOGÍA: misma función, estructura diferente (ej: ala de mariposa y ala de murciélago). HOMOLOGÍA: estructura similar, función diferente (ej: brazo humano, pata de perro, aleta de ballena)."},
-  {q:"En la teoría de la SELECCIÓN NATURAL de Darwin, ¿qué es la 'herencia con variación'?",ops:["Los organismos heredan exactamente los rasgos de sus padres sin cambio","Los organismos heredan muchos rasgos de sus padres pero también presentan rasgos nuevos","Los organismos heredan solo los rasgos adquiridos por esfuerzo","La herencia es completamente aleatoria sin patrones"],c:1,cat:"Darwin",fb:"HERENCIA CON VARIACIÓN: los organismos se parecen mucho a sus padres pero no son idénticos. Aparecen rasgos nuevos. Esta variación es el MOTOR de la selección natural."},
-  {q:"En Darwin, ¿qué significa ser 'más apto'?",ops:["Ser más fuerte o más grande físicamente","Tener mayor ÉXITO REPRODUCTIVO DIFERENCIAL — dejar más descendencia — por cualquier razón","Ser más inteligente que los demás","Ser más resistente a las enfermedades"],c:1,cat:"Darwin",fb:"APTITUD en Darwin = mayor éxito reproductivo diferencial (dejar más descendencia). No hay una única forma de ser apto: puede ser por ser más fuerte, más atractivo, vivir más, etc."},
-  {q:"¿Qué fuentes inspiraron a Darwin para desarrollar la teoría de la selección natural?",ops:["El creacionismo y la geometría euclidiana","Malthus (lucha por supervivencia) y la selección ARTIFICIAL de ganaderos y agricultores","Lamarck y los fósiles encontrados en su viaje","Newton y la mecánica clásica newtoniana"],c:1,cat:"Darwin",fb:"Dos fuentes: (1) MALTHUS: el crecimiento poblacional es exponencial pero los alimentos crecen linealmente → habrá lucha por supervivencia. (2) SELECCIÓN ARTIFICIAL: ganaderos seleccionan individuos con rasgos deseados."},
-  {q:"¿Por qué la teoría de Darwin implica que el ser humano NO es el objetivo final de la evolución?",ops:["Porque Darwin era ateo y rechazaba cualquier teleología","Porque el árbol de la vida no tiene una dirección fijada — la evolución es CONTINGENTE y depende del ambiente","Porque los humanos surgieron por generación espontánea","Porque Darwin nunca mencionó a los humanos en su obra"],c:1,cat:"Darwin",fb:"El árbol de la vida de Darwin no tiene una dirección fijada como en Lamarck. La evolución es CONTINGENTE: depende del ambiente en cada momento. No hay un plan ni un destino predeterminado."},
-  {q:"¿Por qué estudiamos historia de la ciencia en IPC según Shapiro?",ops:["Para memorizar hechos históricos importantes de la ciencia","Para ver con mayor claridad cómo funcionan los SUPUESTOS en el conocimiento científico — la distancia histórica los hace evidentes","Para aprender los resultados actuales de la ciencia","Porque es obligatorio en todas las materias de la UBA"],c:1,cat:"Historia",fb:"Shapiro argumenta que la DISTANCIA HISTÓRICA nos permite ver los supuestos que naturalizamos y no percibimos en nuestra propia época. Estudiar ciencia pasada nos permite reflexionar sobre cómo la ciencia está SITUADA HISTÓRICAMENTE."},
-  {q:"¿Qué significa que el conocimiento científico está 'situado históricamente'?",ops:["Que la ciencia tiene una fecha de inicio exacta y precisa","Que la ciencia está influida y condicionada por las culturas, sociedades, financiamientos, censuras e interacciones de su época","Que la ciencia solo es válida en ciertos países o culturas","Que los científicos solo trabajan en momentos históricos importantes"],c:1,cat:"Historia",fb:"La ciencia está SITUADA HISTÓRICAMENTE: no es un cuerpo de conocimiento neutro y atemporal. Las sociedades que la financian, le hacen preguntas, la censuran o la favorecen MOLDEAN la ciencia."}
+{name:"Parcial Completo — Todo mezclado 🏆",questions:[
+  {q:"'Llueve o no llueve.' Esto es…",ops:["Contingencia","Contradicción","Tautología","Enunciado probabilístico"],c:2,cat:"Modalidad",fb:"Tautología: siempre V por estructura. Si llueve: primer disyunto V → disyunción V. Si no llueve: segundo disyunto V → disyunción V. No hay escenario donde sea F."},
+  {q:"'Si copio en el examen, desapruebo. No copié. ∴ No desaprobé.' ¿Qué falacia es?",ops:["Afirmación del consecuente (AFC)","Negación del antecedente (FNA)","Modus Ponens — es válido","No es una falacia"],c:1,cat:"Falacias",fb:"FNA. Negar el antecedente (no copié) no dice nada sobre el consecuente. Podés desaprobar igual por otras razones."},
+  {q:"'El champiñón, el perrechico y la matamoscas son setas. Los dos primeros son comestibles. ∴ La matamoscas también es comestible.' ¿Qué tipo de argumento es?",ops:["Enumeración incompleta","Silogismo inductivo","Analogía","Deductivo válido"],c:2,cat:"Inductivo",fb:"Analogía: compara casos similares (champiñón, perrechico, matamoscas como setas) y concluye sobre el CASO PRÓXIMO (la matamoscas). La conclusión habla de un individuo específico, no de toda la clase."},
+  {q:"'Si un argumento es sólido entonces es válido. Si es válido entonces no tiene contraejemplos.' ¿Qué forma es esto?",ops:["Modus Ponens","Silogismo Hipotético","Modus Tollens","Silogismo Disyuntivo"],c:1,cat:"Deductivo",fb:"Silogismo Hipotético: Si A→B. Si B→C. ∴ Si A→C. Concatena dos condicionales."},
+  {q:"¿Los humanos son el objetivo final de la evolución según Darwin?",ops:["Sí, somos el punto más evolucionado","No — el árbol de la vida no tiene dirección fijada; la evolución es CONTINGENTE según el ambiente","Sí, somos los más complejos y la complejidad es el objetivo","Solo en la versión de Lamarck, no en la de Darwin"],c:1,cat:"Darwin",fb:"El árbol de la vida de Darwin no tiene una dirección fijada. La evolución es CONTINGENTE: depende del ambiente en cada momento. No hay plan ni destino predeterminado. Esta es una diferencia clave con Lamarck."},
+  {q:"Dado que A y B son ambos verdaderos, ¿cuál de estos enunciados es FALSO?",ops:["A y B (conjunción)","Si A entonces B (condicional con A y B verdaderos)","A o B (disyunción inclusiva)","Si A entonces no B (condicional con A verdadero y no B falso)"],c:3,cat:"Enunciados",fb:"'Si A entonces no B' es FALSO cuando A es V y ¬B es F (porque B es V, ¬B es F). Un condicional con antecedente V y consecuente F es falso."},
+  {q:"'El 80% de los mamíferos son vivíparos. El canguro es un mamífero. ∴ El canguro es vivíparo.' ¿Qué tipo de argumento es?",ops:["Analogía","Enumeración incompleta","Silogismo inductivo","Deductivo válido"],c:2,cat:"Inductivo",fb:"Silogismo inductivo: generalización estadística + caso individual → conclusión probable. La conclusión puede ser falsa (el canguro es marsupial, no vivíparo estricto). Esto ilustra la fortaleza parcial de los inductivos."}
 ]},
-{name:"Todo junto — Parcial completo",emoji:"🏆",questions:[
-  {q:"'Llueve o no llueve' es…",ops:["Una contingencia","Una contradicción","Una tautología","Un enunciado probabilístico"],c:2,cat:"Modalidad",fb:"Tautología: siempre V por estructura. Si llueve: primer disyunto V → disyunción V. Si no: segundo disyunto V. No hay escenario donde sea F."},
-  {q:"'Si copio en el examen, desapruebo. No copié. ∴ No desaprobé.' ¿Qué falacia es?",ops:["Afirmación del consecuente (AFC)","Negación del antecedente (FNA)","Modus Ponens — es válido","No es una falacia"],c:1,cat:"Falacias",fb:"FNA. Negar el antecedente (no copié) no te dice nada sobre el consecuente. Podés desaprobar igual por otras razones."},
-  {q:"MODUS TOLLENS: 'Si la Tierra se mueve, las aves se quedan atrás. Las aves no se quedan atrás. ∴'",ops:["Las aves se quedan atrás igualmente","La Tierra se mueve","La Tierra no se mueve","No se puede concluir nada"],c:2,cat:"Reglas",fb:"Modus Tollens: Si A→B. ¬B. → ¬A. Válido. (La 1° premisa resultó falsa históricamente → no sólido, pero la estructura es válida.)"},
-  {q:"La teoría de la selección natural de Darwin explica la adaptación mediante…",ops:["El esfuerzo de los organismos por adaptarse y la herencia de esos cambios","Herencia con variación + aptitud (éxito reproductivo diferencial) → las características útiles se propagan","Un diseñador inteligente que optimiza cada especie","Complejidad creciente a lo largo del tiempo evolutivo"],c:1,cat:"Darwin",fb:"Selección natural: herencia con variación → algunos rasgos son más eficaces → los organismos con esos rasgos dejan más descendencia → la siguiente generación tiene más de esos rasgos."},
-  {q:"¿Cuál es un argumento por ENUMERACIÓN INCOMPLETA?",ops:["Cursé Química y me fue bien. Ahora curso IPC. → Probablemente me irá bien en IPC.","El chimpancé, el orangután y el capuchino usan herramientas. → Los primates usan herramientas.","El 85% de los peces abisales son bioluminiscentes. El rape es abisal. → El rape es bioluminiscente.","Todos los mamíferos tienen pulmones. El delfín es mamífero. → El delfín tiene pulmones."],c:1,cat:"Tipos",fb:"Es enumeración: casos observados (tres primates) → generalización a TODA la clase (los primates)."},
-  {q:"En la geometría euclidiana, hiperbólica y elíptica, la cantidad de paralelas es respectivamente…",ops:["1, 1, 1 paralela en cada caso","1, infinitas, ninguna","Infinitas, 1, ninguna","Ninguna, 1, infinitas"],c:1,cat:"Geometría",fb:"Euclidiana: 1. Hiperbólica: infinitas. Elíptica: ninguna."},
-  {q:"¿Cuál es la diferencia entre la teoría de la adaptación de Lamarck y la de Darwin?",ops:["Lamarck creía en la adaptación; Darwin no","Lamarck: los organismos hacen un ESFUERZO consciente que se hereda. Darwin: la variación surge aleatoriamente y el ambiente selecciona las variaciones más eficaces","Darwin: esfuerzo y herencia. Lamarck: selección natural","No hay diferencia relevante entre sus posiciones"],c:1,cat:"Darwin",fb:"LAMARCK: esfuerzo voluntario → cambio → herencia. DARWIN: variación aleatoria → si el rasgo es más eficaz en ese ambiente → mayor éxito reproductivo → se propaga. En Darwin no hay esfuerzo ni dirección."},
-  {q:"¿Por qué el sistema axiomático necesita la propiedad de CONSISTENCIA?",ops:["Para que los axiomas sean más fáciles de entender","Para que no se pueda probar A y ¬A al mismo tiempo — si se pudiera, el sistema admitiría falsedades","Para que sea más rápido demostrar teoremas","Para que sea aplicable a la realidad física"],c:1,cat:"Axiomas",fb:"CONSISTENCIA: si dentro del sistema se pueden probar A y ¬A, el sistema es inconsistente y admite falsedades. Es un requisito necesario para cualquier sistema axiomático bien formado."},
-  {q:"Al reconstruir un argumento, ¿qué privilegiamos: oraciones o proposiciones?",ops:["Las oraciones exactas del texto original","Las proposiciones — lo que se afirma — aunque implique parafrasear","Solo los indicadores de premisa que aparecen","La extensión total del texto"],c:1,cat:"Proposiciones",fb:"En la reconstrucción hay que atender a las PROPOSICIONES. Es posible y necesario parafrasear, omitir expresiones irrelevantes o agregar lo que falta para completar el sentido."},
-  {q:"Según Shapiro, ¿qué ventaja tiene estudiar ciencia HISTÓRICA en vez de solo ciencia actual?",ops:["Es más fácil memorizar datos históricos que actuales","La distancia histórica permite ver los SUPUESTOS que naturalizamos — en el pasado se hacen evidentes. Los procesos históricos están más cerrados y se pueden analizar mejor.","La ciencia histórica es más entretenida de estudiar","La ciencia actual es demasiado difícil de entender"],c:1,cat:"Historia",fb:"La ciencia del pasado nos permite ver cómo los supuestos culturales y sociales CONDICIONAN el conocimiento científico. Eso en el presente es difícil de ver porque estamos dentro. La historia nos da perspectiva."}
+{name:"🎯 Identificación Rápida: AFC vs FNA vs MT vs MP",questions:[
+  {q:"Forma: Si A→B. A. ∴ B. ¿Qué es?",ops:["AFC (inválido)","FNA (inválido)","Modus Ponens (válido)","Modus Tollens (válido)"],c:2,cat:"Identificación",fb:"MODUS PONENS: Si A→B. Afirmo A (antecedente). ∴ B (consecuente). VÁLIDO."},
+  {q:"Forma: Si A→B. ¬B. ∴ ¬A. ¿Qué es?",ops:["AFC (inválido)","FNA (inválido)","Modus Ponens (válido)","Modus Tollens (válido)"],c:3,cat:"Identificación",fb:"MODUS TOLLENS: Si A→B. Niego B (consecuente). ∴ ¬A (niego antecedente). VÁLIDO."},
+  {q:"Forma: Si A→B. B. ∴ A. ¿Qué es?",ops:["AFC (inválido)","FNA (inválido)","Modus Ponens (válido)","Modus Tollens (válido)"],c:0,cat:"Identificación",fb:"AFIRMACIÓN DEL CONSECUENTE: Si A→B. Afirmo B (consecuente). ∴ A (antecedente). INVÁLIDO — A es suficiente para B, no necesario."},
+  {q:"Forma: Si A→B. ¬A. ∴ ¬B. ¿Qué es?",ops:["AFC (inválido)","FNA (inválido)","Modus Ponens (válido)","Modus Tollens (válido)"],c:1,cat:"Identificación",fb:"NEGACIÓN DEL ANTECEDENTE: Si A→B. Niego A (antecedente). ∴ ¬B (niego consecuente). INVÁLIDO — negar A no dice nada sobre B."},
+  {q:"'Si es alérgico al maní, no puede comer manteca de maní. No puede comer manteca de maní. ∴ Es alérgico al maní.' ¿Qué es?",ops:["Modus Ponens","Modus Tollens","AFC","FNA"],c:2,cat:"Identificación",fb:"AFC. Se afirma el CONSECUENTE (no puede comer manteca de maní) para concluir el antecedente (es alérgico al maní). Podría no comer manteca de maní por otras razones."},
+  {q:"'Si hace frío, salgo con abrigo. No salí con abrigo. ∴ No hizo frío.' ¿Qué es?",ops:["Modus Ponens","Modus Tollens","AFC","FNA"],c:1,cat:"Identificación",fb:"MODUS TOLLENS. Se niega el CONSECUENTE (no salí con abrigo) → se concluye la negación del antecedente (no hizo frío). VÁLIDO."},
+  {q:"'Si tiene fiebre, está enfermo. No tiene fiebre. ∴ No está enfermo.' ¿Qué es?",ops:["Modus Ponens","Modus Tollens","AFC","FNA"],c:3,cat:"Identificación",fb:"FNA. Se niega el ANTECEDENTE (no tiene fiebre) → se concluye la negación del consecuente (no está enfermo). INVÁLIDO — podría estar enfermo sin fiebre."},
+  {q:"'Si aprueba el parcial, pasa de año. Aprobó el parcial. ∴ Pasa de año.' ¿Qué es?",ops:["Modus Ponens","Modus Tollens","AFC","FNA"],c:0,cat:"Identificación",fb:"MODUS PONENS. Se afirma el ANTECEDENTE (aprobó el parcial) → se concluye el consecuente (pasa de año). VÁLIDO."},
+  {q:"'Si la célula contiene cloroplastos, es una célula vegetal. No es una célula vegetal. ∴ No contiene cloroplastos.' ¿Qué es?",ops:["Modus Ponens","Modus Tollens","AFC","FNA"],c:1,cat:"Identificación",fb:"MODUS TOLLENS. Se niega el CONSECUENTE (no es célula vegetal) → se concluye ¬antecedente (no contiene cloroplastos). VÁLIDO."},
+  {q:"'Si es un pájaro, puede volar. Puede volar. ∴ Es un pájaro.' ¿Qué es?",ops:["Modus Ponens","Modus Tollens","AFC","FNA"],c:2,cat:"Identificación",fb:"AFC. Se afirma el CONSECUENTE (puede volar) → se concluye el antecedente (es un pájaro). INVÁLIDO — puede volar y ser insecto, murciélago, avión..."},
+  {q:"'Si hay electricidad estática, la pantalla parpadea. La pantalla no parpadea. ∴ No hay electricidad estática.' ¿Qué es?",ops:["Modus Ponens","Modus Tollens","AFC","FNA"],c:1,cat:"Identificación",fb:"MODUS TOLLENS. ¬consecuente (pantalla no parpadea) → ¬antecedente (no hay electricidad estática). VÁLIDO."},
+  {q:"La regla mnemotécnica para NO confundirse: en MT y FNA se niega algo. ¿Cuál es la diferencia?",ops:["En MT se niega el antecedente; en FNA el consecuente","En MT se niega el CONSECUENTE (válido); en FNA se niega el ANTECEDENTE (inválido)","No hay diferencia real","En MT se usa una disyunción"],c:1,cat:"Identificación",fb:"CLAVE: MT niega el CONSECUENTE → ¬antecedente (válido). FNA niega el ANTECEDENTE → ¬consecuente (inválido). Memorizá: MT toca el consecuente, FNA toca el antecedente."}
+]},
+];
+
+// ═══════════════════════════════════════════
+// DATA — STUDY CONCEPTS
+// ═══════════════════════════════════════════
+const CONCEPTS = [
+  {term:"Argumento, Indicadores y Proposiciones",chip:"Argumentos",cls:"ch-a",cat:"arg",def:"Un argumento tiene ESTRUCTURA: premisas (razones) + conclusión única. La conclusión puede estar al principio, medio o final. Indicadores de PREMISA: 'dado que', 'puesto que', 'porque', 'ya que', 'pues', 'debido a'. Indicadores de CONCLUSIÓN: 'por lo tanto', 'luego', 'en consecuencia', 'se sigue que', 'podemos inferir', 'lo cual prueba que', 'consecuentemente'. Oración = soporte material. Proposición = lo que se afirma/niega.",ex:"'Los hongos no son vegetales, ya que no fotosintetizan.' Conclusión = 'los hongos no son vegetales'. Premisa = 'los hongos no fotosintetizan'."},
+  {term:"Conectivas lógicas y tablas de verdad",chip:"Enunciados",cls:"ch-d",cat:"enunc",def:"Conjunción (y, pero, aunque): V solo cuando AMBOS son V. Disyunción inclusiva (o): V cuando AL MENOS UNO es V. Disyunción exclusiva (o bien…o bien): V cuando UNO Y SOLO UNO es V. Condicional (si→entonces): F SOLO cuando antecedente V y consecuente F. Bicondicional (si y solo si): V cuando ambos tienen el mismo valor de verdad. Negación: invierte el valor de verdad.",ex:"Condicional: 'Si llueve, me mojo' → F SOLO si llueve (V) y no me mojo (F). En todos los demás casos es V."},
+  {term:"Modalidad: Tautología / Contradicción / Contingencia",chip:"Enunciados",cls:"ch-d",cat:"enunc",def:"Tautología: siempre V por ESTRUCTURA ('llueve o no llueve', 'A o ¬A'). Contradicción: siempre F por ESTRUCTURA ('llueve y no llueve', 'A y ¬A'). Contingencia: V o F según el mundo (depende del contenido, no de la estructura). Negación de tautología = contradicción. Negación de contradicción = tautología.",ex:"'Buenos Aires es la capital de Argentina' → contingencia (verdadera, pero podría ser falsa). 'Buenos Aires es o no es la capital de Argentina' → tautología."},
+  {term:"Validez, Solidez y Reglas de Inferencia",chip:"Deductivo",cls:"ch-d",cat:"ded",def:"VÁLIDO: imposible P verdaderas y C falsa (depende de la FORMA). SÓLIDO: válido + premisas verdaderas. Todo sólido es válido; no todo válido es sólido. Reglas: Modus Ponens (A→B, A ∴ B), Modus Tollens (A→B, ¬B ∴ ¬A), Sil. Hipotético (A→B, B→C ∴ A→C), Sil. Disyuntivo (A∨B, ¬A ∴ B), Instanciación Universal (∀xRx, Ra ∴ Pa), Simplificación (A∧B ∴ A), Adjunción (A, B ∴ A∧B), Prueba por Absurdo.",ex:"Prueba por absurdo: asumir ¬C → derivar contradicción → concluir C."},
+  {term:"🚨 FALACIAS: AFC y FNA",chip:"Falacias",cls:"ch-f",cat:"fal",def:"AFC (Afirmación del Consecuente): Si A→B. B. ∴ A. INVÁLIDA (A suficiente para B, no necesario). FNA (Negación del Antecedente): Si A→B. ¬A. ∴ ¬B. INVÁLIDA (mismo motivo). CLAVE: MT niega el CONSECUENTE (válido). FNA niega el ANTECEDENTE (inválido). AFC afirma el consecuente (inválido). MP afirma el antecedente (válido).",ex:"AFC: 'Si es porteño, es argentino. Es argentino. ∴ Es porteño.' FALSO. FNA: 'Si es porteño, es argentino. No es porteño. ∴ No es argentino.' FALSO."},
+  {term:"Argumentos Inductivos — Los 3 tipos",chip:"Inductivo",cls:"ch-i",cat:"ind",def:"ANALOGÍA: casos similares → CASO PRÓXIMO tendrá la propiedad (conclusión habla de un individuo). Se fortalece con más semejanzas RELEVANTES y más casos. ENUMERACIÓN INCOMPLETA: casos observados → TODA LA CLASE tiene la propiedad (conclusión generaliza). Se fortalece con muestra representativa y grande. SILOGISMO INDUCTIVO: estadística + caso individual → conclusión probable. Se fortalece aumentando la frecuencia relativa (sin llegar al 100%).",ex:"La conclusión revela el tipo: '¿El pomelo tiene vitamina C?' (analogía, caso próximo) vs 'Todos los cítricos tienen vitamina C' (enumeración, toda la clase)."},
+  {term:"🌿 Teoría de Darwin — Selección Natural",chip:"Darwin",cls:"ch-dar",cat:"dar",def:"La selección natural actúa como filtro: selecciona rasgos adaptativos y descarta los que no lo son. Los rasgos nuevos surgen AZAROSAMENTE (pueden ser beneficiosos, neutros o perjudiciales). Los individuos con rasgos más eficaces en un ambiente específico son MÁS APTOS (= dejan más descendencia). La evolución NO tiene dirección fijada. El árbol de la vida = diversificación contingente. Darwin NO creía que la evolución fuera hacia la complejidad.",ex:"Jirafa con cuello más largo → come más → vive más → deja más descendencia → el rasgo se propaga. Sin esfuerzo consciente ni diseño."},
+  {term:"🌿 Teoría de Lamarck",chip:"Darwin",cls:"ch-dar",cat:"dar",def:"(1) COMPLEJIDAD CRECIENTE: los organismos tienden a volverse más complejos con el tiempo. La evolución tiene DIRECCIÓN (de simples a complejos). (2) HERENCIA DE CARACTERES ADQUIRIDOS: el ambiente impone desafíos → el organismo hace un ESFUERZO → adquiere cambios por USO o DESUSO → esos cambios se HEREDAN a la descendencia.",ex:"Jirafa de Lamarck: los ancestros se esforzaron por alcanzar hojas altas → estiraron el cuello → ese estiramiento se heredó. Diferencia clave con Darwin: hay esfuerzo y dirección."},
+  {term:"🌿 Darwin vs Lamarck — Diferencias clave",chip:"Darwin",cls:"ch-dar",cat:"dar",def:"ORIGEN DE VARIACIONES: Darwin = azar/aleatorio. Lamarck = uso/desuso por esfuerzo. HERENCIA: Darwin = se heredan los rasgos de los padres + variaciones azarosas. Lamarck = se heredan los rasgos ADQUIRIDOS durante la vida. DIRECCIÓN: Darwin = sin dirección fijada (contingente). Lamarck = dirección ascendente hacia la complejidad. APTITUD: Darwin = éxito reproductivo diferencial. Lamarck = adaptación por esfuerzo.",ex:"Tortuga: Darwin = ancestros con caparazón más duro dejaron más descendencia. Lamarck = ancestros endurecieron su lomo al ser atacados y ese rasgo se heredó."},
+];
+
+// ═══════════════════════════════════════════
+// DATA — EXAM FORMAT EXERCISES (10 per set)
+// ═══════════════════════════════════════════
+const EXAM_SETS = [
+{name:"SET A — Hongos y naturaleza",exercises:[
+  {n:1,type:"mc",title:"Identificación de argumentos",
+   inst:"Determiná cuál de los siguientes fragmentos es un argumento.",
+   ops:["Los hongos obtienen su alimento luego de absorber materia orgánica a partir de su entorno.","Si un ser vivo lleva a cabo un proceso de fotosíntesis, entonces es una planta o vegetal.","Los hongos no son vegetales, puesto que los vegetales producen su propio alimento mediante fotosíntesis y los hongos no fotosintetizan.","Los hongos no fotosintetizan, pero los animales, las moneras y los protozoos tampoco."],
+   c:2,
+   fb:"La opción 3 contiene el indicador de premisa 'puesto que' que introduce las razones a favor de la conclusión 'los hongos no son vegetales'. Las opciones 1 y 4 son enunciados sin estructura argumentativa. La opción 2 es un condicional, no un argumento."},
+  {n:2,type:"mc",title:"Identificación de la conclusión",
+   inst:"Indicá cuál es la conclusión del siguiente argumento:",
+   text:"Tanto hongos como animales comparten su modo de alimentarse. Pero también su forma de metabolizar y, por lo tanto, son más cercanos genéticamente a los animales que a las plantas.",
+   ops:["Hongos y animales comparten su modo de alimentarse.","Son más cercanos genéticamente a los animales que a las plantas.","Hongos y animales comparten su forma de metabolizar.","Los hongos son más cercanos genéticamente a los animales que a las plantas."],
+   c:3,
+   fb:"El indicador de conclusión 'por lo tanto' señala que lo que viene es la conclusión. Pero la conclusión debe enunciarse de manera COMPLETA, incluyendo el sujeto explícito: 'los hongos son más cercanos genéticamente a los animales que a las plantas'."},
+  {n:3,type:"mc",title:"Evaluación de enunciados complejos",
+   inst:"Dadas las siguientes oraciones VERDADERAS: 'El micelio es la parte vegetativa del hongo' y 'El micelio crece debajo del suelo'. Determiná cuál de los siguientes enunciados es VERDADERO.",
+   ops:["El micelio crece debajo del suelo pero no es la parte vegetativa del hongo.","Si el micelio crece debajo del suelo, entonces es la parte vegetativa del hongo.","El micelio no crece debajo del suelo o no es la parte vegetativa del hongo.","No es cierto que el micelio crece debajo del suelo."],
+   c:1,
+   fb:"El condicional (opción 2) es VERDADERO: su antecedente (crece debajo del suelo) es V y su consecuente (es parte vegetativa) es V → condicional V. Opción 1 es conjunción con un conyunto falso → F. Opción 3 es disyunción de dos negaciones de verdades → F. Opción 4 es negación de verdad → F."},
+  {n:4,type:"mc",title:"Tautología, contradicción o contingencia",
+   inst:"Completá el siguiente enunciado para que sea una TAUTOLOGÍA: 'El micelio es la parte vegetativa del hongo...'",
+   ops:["y no es la parte vegetativa del hongo.","o no es la parte vegetativa del hongo.","aunque crece debajo del suelo.","que está formada por filamentos."],
+   c:1,
+   fb:"'A o ¬A' es una TAUTOLOGÍA — siempre V por estructura. Opción 1 es 'A y ¬A' → contradicción. Opciones 3 y 4 son contingencias (dependen del contenido empírico)."},
+  {n:5,type:"mc",title:"Identificación de argumentos válidos",
+   inst:"Determiná cuál de los siguientes argumentos es VÁLIDO.",
+   ops:["Las levaduras, el moho y las setas son hongos y producen esporas. En consecuencia, todos los hongos producen esporas.","Si el moho negro es unicelular, entonces es comestible. El moho negro no es unicelular. Luego, no es comestible.","Si la levadura crece metabolizando azúcares, entonces es un hongo. Pero no es un hongo. Por lo tanto, la levadura no crece metabolizando azúcares.","Si las setas se originaron de mohos, entonces aparecieron en el período Cámbrico. Dado que aparecieron en el período Cámbrico, podemos inferir que se originaron de mohos."],
+   c:2,
+   fb:"La opción 3 es MODUS TOLLENS: Si A→B. ¬B. ∴ ¬A. VÁLIDO. Opción 1 es enumeración incompleta (inductivo). Opción 2 es FNA (inválida). Opción 4 es AFC (inválida)."},
+  {n:6,type:"mc",title:"Validez y solidez",
+   inst:"Determiná si el siguiente enunciado es VERDADERO o FALSO y por qué: 'Si un argumento es válido entonces es sólido.'",
+   ops:["Verdadero porque si un argumento es válido entonces su conclusión debe ser verdadera.","Verdadero porque si un argumento es válido entonces sus premisas deben ser verdaderas.","Falso porque los argumentos válidos pueden tener premisas verdaderas y conclusión falsa y los sólidos no.","Falso porque los argumentos válidos pueden tener premisas falsas y conclusión verdadera y los sólidos no."],
+   c:3,
+   fb:"FALSO. Los argumentos válidos PUEDEN tener premisas falsas (en cuyo caso la conclusión puede ser V o F) — y en ese caso no son sólidos. Un argumento válido con premisas falsas NO es sólido."},
+  {n:7,type:"dual",title:"Argumentos inductivos — Analogía",
+   inst:"Dado: 'El champiñón común es una seta y es comestible. El perrechico es una seta y es comestible.' Seleccioná la PREMISA faltante (P) y la CONCLUSIÓN (C) para que sea argumento por ANALOGÍA.",
+   ops:["La matamoscas es una seta.","La trufa es comestible.","La mayoría de las setas es comestible.","Todas las setas son comestibles.","La matamoscas es comestible."],
+   cP:0,cC:4,
+   fb:"Analogía: comparamos el champiñón, el perrechico y la matamoscas (son setas). Los dos primeros son comestibles. ∴ La matamoscas también es comestible (el CASO PRÓXIMO). La premisa agrega que la matamoscas es una seta; la conclusión infiere que también es comestible."},
+  {n:8,type:"mc",title:"Fortalecimiento de argumentos inductivos",
+   inst:"¿Qué premisa fortalece el siguiente argumento SIN que deje de ser inductivo por ENUMERACIÓN INCOMPLETA? 'Las gírgolas, los portobellos y las trufas negras son hongos comestibles con gran valor nutricional. Por lo tanto, todos los hongos comestibles tienen gran valor nutricional.'",
+   ops:["Las gírgolas, los portobellos y las trufas negras son los únicos tipos de hongos comestibles.","El níscalo posee un gran valor nutricional.","El níscalo es un hongo comestible que tiene un gran valor nutricional.","El champiñón es un hongo comestible."],
+   c:2,
+   fb:"Para fortalecer la ENUMERACIÓN sin que deje de ser inductiva: agrego un caso más a la muestra (el níscalo como hongo comestible con valor nutricional). La opción 1 haría el argumento DEDUCTIVO. La opción 2 no menciona que sea comestible. La opción 4 no habla de valor nutricional."},
+  {n:9,type:"darwin",title:"Teoría de la selección natural de Darwin",
+   inst:"Determiná si el siguiente enunciado es VERDADERO o FALSO según Darwin, y elegí la justificación:",
+   stmt:"La aparición de un rasgo nuevo en un individuo siempre depende del ambiente en el que viva.",
+   cTF:"F",
+   opts_b:["La aparición de algunos rasgos nuevos en un individuo es aleatoria.","Los individuos heredan de sus progenitores solo los rasgos beneficiosos.","Los rasgos nuevos son siempre beneficiosos independientemente del ambiente.","Los individuos desarrollan durante su vida los rasgos que necesitan."],
+   cB:0,
+   fb:"FALSO. Según Darwin, la aparición de algunos rasgos es ALEATORIA — no siempre son una respuesta al ambiente. Por eso los rasgos nuevos no necesariamente son beneficiosos; pueden ser beneficiosos, neutros o perjudiciales."},
+  {n:10,type:"mc",title:"Explicación darwiniana o lamarckiana",
+   inst:"¿Cuál de las siguientes opciones explica el fenómeno desde la teoría de la SELECCIÓN NATURAL DE DARWIN? 'El pájaro carpintero tiene un pico afilado que le permite perforar la corteza de los árboles y alimentarse de los insectos que allí habitan.'",
+   ops:["El pico afilado es completamente azaroso, resultado de la 'lotería genética' sin relación con el entorno.","Los pájaros carpinteros fueron creados con pico afilado para sobrevivir, generando un equilibrio armonioso.","Los ancestros del pájaro carpintero afilaban su pico al cazar insectos. Sus descendientes heredaron ese rasgo adquirido por uso intensivo.","Los ancestros del pájaro carpintero con pico más afilado tenían ventaja respecto a los que no lo tenían, resultando más aptos y dejando mayor descendencia que heredó ese pico."],
+   c:3,
+   fb:"Darwin: los ancestros con pico más afilado → mayor aptitud en ese entorno → más descendencia → el rasgo se propaga. La opción 3 es LAMARCK (esfuerzo + herencia de caracteres adquiridos). La opción 2 es creacionismo."}
+]},
+{name:"SET B — Animales y evolución",exercises:[
+  {n:1,type:"mc",title:"Identificación de argumentos",
+   inst:"Determiná cuál de los siguientes fragmentos es un argumento.",
+   ops:["Los patos presentan los dedos de sus patas unidos por una membrana.","Si un animal tiene branquias, entonces vive en el agua.","Los delfines son mamíferos marinos, pues amamantan a sus crías y respiran mediante pulmones.","Los tiburones y los delfines nadan de manera similar, pero uno es pez y el otro mamífero."],
+   c:2,
+   fb:"La opción 3 contiene el indicador de premisa 'pues' que introduce las razones a favor de 'los delfines son mamíferos marinos'. Las otras opciones son enunciados simples o un condicional."},
+  {n:2,type:"mc",title:"Identificación de la conclusión",
+   inst:"Indicá cuál es la conclusión del siguiente argumento:",
+   text:"Algunos hongos intercambian información sobre nutrientes en el suelo y estrés ambiental. Otros incluso coordinan ataques contra otros organismos. Lo cual prueba que tienen una red interna.",
+   ops:["Tienen una red interna.","Algunos hongos intercambian información sobre nutrientes.","Algunos hongos tienen una red interna.","Otros hongos coordinan ataques contra otros organismos."],
+   c:2,
+   fb:"El indicador de conclusión 'lo cual prueba que' señala que lo que le sigue es la conclusión. La conclusión debe enunciarse COMPLETA: 'algunos hongos tienen una red interna' (con el sujeto explícito)."},
+  {n:3,type:"mc",title:"Evaluación de enunciados complejos",
+   inst:"Dadas las siguientes oraciones VERDADERAS: 'El micelio descompone la materia orgánica' y 'El micelio absorbe nutrientes de su entorno'. Determiná cuál es VERDADERO.",
+   ops:["Si el micelio descompone la materia orgánica, entonces no absorbe nutrientes de su entorno.","No es cierto que el micelio absorbe nutrientes de su entorno.","El micelio no descompone la materia orgánica o no absorbe nutrientes de su entorno.","El micelio descompone la materia orgánica y además absorbe nutrientes de su entorno."],
+   c:3,
+   fb:"La conjunción (opción 4) es VERDADERA: ambos conyuntos son V → conjunción V. Opción 1: condicional con antecedente V y consecuente F → F. Opción 2: negación de verdad → F. Opción 3: disyunción de dos negaciones de verdades → F."},
+  {n:4,type:"mc",title:"Tautología, contradicción o contingencia",
+   inst:"Completá para que sea una CONTRADICCIÓN: 'El micelio descompone la materia orgánica...'",
+   ops:["o no descompone la materia orgánica.","y es la parte vegetativa del hongo.","pero no descompone la materia orgánica.","aunque crece debajo del suelo."],
+   c:2,
+   fb:"'A y ¬A' es una CONTRADICCIÓN — siempre F por estructura. 'El micelio descompone la materia orgánica pero no descompone la materia orgánica' = A y ¬A. Opción 1 es tautología (A o ¬A). Opciones 2 y 4 son contingencias."},
+  {n:5,type:"mc",title:"Identificación de argumentos válidos",
+   inst:"Determiná cuál de los siguientes argumentos es VÁLIDO.",
+   ops:["La melena de león, la gírgola y el champiñón son hongos y producen setas. Y el portobello es un hongo. Podemos inferir que el portobello produce setas.","Si los champiñones son blancos, entonces crecen en el mar. Pero los champiñones no crecen en el mar. En consecuencia, no son blancos.","Si la masa madre es un moho, entonces es tóxica. Pero la masa madre no es un moho. Se sigue que la masa madre no es tóxica.","Si hay fósiles fúngicos, entonces los hongos aparecieron en el Cámbrico. Y los hongos aparecieron en el Cámbrico. ∴ Hay fósiles fúngicos."],
+   c:1,
+   fb:"La opción 2 es MODUS TOLLENS: Si A→B. ¬B. ∴ ¬A. VÁLIDO (aunque la primera premisa sea empíricamente falsa, la FORMA es válida). Opción 1 es inductivo por analogía. Opción 3 es FNA (inválida). Opción 4 es AFC (inválida)."},
+  {n:6,type:"mc",title:"Validez y solidez",
+   inst:"Determiná si el siguiente enunciado es VERDADERO o FALSO: 'Todos los argumentos válidos son sólidos.'",
+   ops:["Verdadero porque si un argumento es válido entonces sus premisas deben ser verdaderas.","Verdadero porque si un argumento es válido entonces su conclusión debe ser verdadera.","Falso porque los argumentos válidos pueden tener premisas falsas y conclusión verdadera, y los sólidos no.","Falso porque los argumentos válidos pueden tener premisas verdaderas y conclusión falsa, y los sólidos no."],
+   c:2,
+   fb:"FALSO. Un argumento válido PUEDE tener premisas falsas (en cuyo caso no es sólido). La opción 3 da la razón correcta: hay argumentos válidos con premisas falsas y conclusión verdadera, lo cual es imposible para un argumento sólido (que exige premisas verdaderas)."},
+  {n:7,type:"dual_sil",title:"Argumentos inductivos — Silogismo inductivo",
+   inst:"El siguiente argumento concluye que 'El níscalo crece bajo la sombra de un árbol'. Seleccioná las DOS PREMISAS faltantes para que sea SILOGISMO INDUCTIVO.",
+   opts_p:["La galamperna crece bajo la sombra de un árbol.","El níscalo es una seta.","Todas las setas crecen bajo la sombra de un árbol.","El gurumelo es una seta y crece bajo la sombra de un árbol.","La mayoría de las setas crece bajo la sombra de un árbol."],
+   cP1:1,cP2:4,
+   fb:"Silogismo inductivo: se formula una generalización estadística ('la mayoría de las setas crece bajo la sombra de un árbol' — P5) y se subsume un caso individual ('el níscalo es una seta' — P2). Si la generalización fuera 'todas', el argumento sería DEDUCTIVO."},
+  {n:8,type:"mc",title:"Fortalecimiento de argumentos inductivos",
+   inst:"¿Qué premisa fortalece SIN que deje de ser SILOGISMO INDUCTIVO? 'El 90% de los organismos del reino Fungi se alimenta de materia orgánica en descomposición. El champiñón es del reino Fungi. ∴ Se alimenta de materia orgánica.'",
+   ops:["El champiñón es un organismo del reino Fungi y es terrestre.","El 100% de los organismos del reino Fungi se alimenta de materia orgánica.","El 95% de los organismos del reino Fungi se alimenta de materia orgánica.","Todos los organismos del reino Fungi se alimentan de materia orgánica."],
+   c:2,
+   fb:"Para fortalecer el silogismo inductivo: aumentar la frecuencia relativa al 95% (sin llegar al 100%). Las opciones 2 y 4 lo convertirían en DEDUCTIVO. La opción 1 no modifica la estructura del argumento."},
+  {n:9,type:"darwin",title:"Teoría de la selección natural de Darwin",
+   inst:"Determiná si el siguiente enunciado es VERDADERO o FALSO según Darwin, y elegí la justificación:",
+   stmt:"Los rasgos de un individuo no son idénticos a los rasgos de sus progenitores.",
+   cTF:"V",
+   opts_b:["Los individuos heredan todos los rasgos de sus progenitores sin excepción.","Los individuos heredan de sus progenitores solo los rasgos beneficiosos.","Los individuos heredan muchos rasgos de sus progenitores pero presentan también nuevos rasgos de aparición aleatoria.","Los individuos heredan todos los rasgos de sus progenitores y luego los modifican."],
+   cB:2,
+   fb:"VERDADERO. Según Darwin, los individuos heredan MUCHOS rasgos de sus padres pero no son idénticos a ellos, ya que pueden aparecer nuevos rasgos por variaciones azarosas (mutaciones). Esto es la 'herencia con variación'."},
+  {n:10,type:"mc",title:"Explicación darwiniana o lamarckiana",
+   inst:"¿Cuál de las siguientes opciones explica el fenómeno desde la teoría de LAMARCK? 'Los patos presentan los dedos de sus patas unidos por una membrana, lo que les permite nadar.'",
+   ops:["Los ancestros de los patos con dedos unidos por membranas resultaron más aptos para los entornos acuáticos, dejando más descendencia que heredó el rasgo.","Los patos fueron creados con los dedos unidos por membranas para nadar, generando un equilibrio armonioso.","Los ancestros de los patos actuales juntaban sus dedos para nadar, lo cual fomentó el desarrollo de una membrana que los mantuviese unidos. Este rasgo adquirido por uso fue heredado a la descendencia.","La membrana es resultado de la lotería genética y no tiene relación con el entorno."],
+   c:2,
+   fb:"Lamarck: los rasgos adaptativos se explican por el ESFUERZO de los organismos. Los ancestros usaban sus dedos juntos para nadar → desarrollaron membranas por uso intensivo → ese rasgo adquirido se heredó. La opción 1 es DARWIN."}
+]},
+{name:"SET C — Ciencia y conocimiento",exercises:[
+  {n:1,type:"mc",title:"Identificación de argumentos",
+   inst:"Determiná cuál de los siguientes fragmentos es un argumento.",
+   ops:["El reino fungi es un gran aliado a la hora de cocinar, tanto para dietas omnívoras como vegetarianas.","Si los hongos tienen funciones medicinales y alimenticias, entonces son relevantes para los humanos.","Algunos antibióticos son producto de hongos. Algunos antioxidantes y fermentos también.","Los hongos son valiosos para los humanos porque cumplen funciones alimenticias, medicinales, cosméticas y de control de plagas."],
+   c:3,
+   fb:"La opción 4 contiene el indicador de premisa 'porque' que introduce las razones a favor de la conclusión 'los hongos son valiosos para los humanos'. Opción 2 es un condicional. Opciones 1 y 3 son enunciados simples."},
+  {n:2,type:"mc",title:"Identificación de la conclusión",
+   inst:"Indicá cuál es la conclusión del siguiente argumento:",
+   text:"Se han investigado hongos capaces de sobrevivir en la Antártida y en Chernobyl. Estos son capaces de vivir en condiciones extremas y ambientes inhóspitos y, por lo tanto, son denominados extremófilos.",
+   ops:["Son denominados extremófilos.","Se han investigado hongos capaces de sobrevivir en la Antártida y en Chernobyl.","Los hongos son capaces de vivir en condiciones extremas.","Los hongos capaces de vivir en condiciones extremas y ambientes inhóspitos son denominados extremófilos."],
+   c:3,
+   fb:"El indicador 'por lo tanto' señala la conclusión. Debe enunciarse COMPLETA e incluir el sujeto explícito. 'Los hongos capaces de vivir en condiciones extremas y ambientes inhóspitos son denominados extremófilos' es la conclusión completa."},
+  {n:3,type:"mc",title:"Evaluación de enunciados complejos",
+   inst:"Dadas las siguientes oraciones VERDADERAS: 'El micelio es la parte vegetativa del hongo' y 'El micelio crece debajo del suelo'. Determiná cuál de los siguientes enunciados es FALSO.",
+   ops:["O bien el micelio crece debajo del suelo o bien no es la parte vegetativa del hongo.","Si el micelio es la parte vegetativa del hongo, entonces crece debajo del suelo.","El micelio no crece debajo del suelo pero es la parte vegetativa del hongo.","El micelio crece debajo del suelo o no es la parte vegetativa del hongo."],
+   c:2,
+   fb:"La CONJUNCIÓN 'A pero ¬B' (el micelio no crece debajo del suelo PERO es la parte vegetativa) es FALSA: el primer conyunto 'no crece debajo del suelo' es F (dado que SÍ crece debajo del suelo). Las opciones 1, 2, 4 son verdaderas."},
+  {n:4,type:"mc",title:"Tautología, contradicción o contingencia",
+   inst:"Completá para que sea una CONTINGENCIA: 'El micelio descompone la materia orgánica...'",
+   ops:["pero no descompone la materia orgánica.","y no descompone la materia orgánica.","o no descompone la materia orgánica.","aunque crece debajo del suelo."],
+   c:3,
+   fb:"Una CONTINGENCIA es un enunciado cuya verdad o falsedad depende del contenido empírico, no de la estructura. 'El micelio descompone la materia orgánica aunque crece debajo del suelo' puede ser V o F según la realidad. Las opciones 1 y 2 son contradicción. La 3 es tautología."},
+  {n:5,type:"mc",title:"Identificación de argumentos INVÁLIDOS",
+   inst:"Determiná cuál de los siguientes argumentos es INVÁLIDO.",
+   ops:["Si el moho negro es tóxico, entonces es bioluminiscente. Y el moho negro no es bioluminiscente. Luego, no es tóxico.","Si el champiñón brilla en la oscuridad, entonces es bioluminiscente. Y el champiñón brilla en la oscuridad. ∴ Es bioluminiscente.","El moho necesita luz solar y crece en ambientes secos. Por consiguiente, el moho crece en ambientes secos.","Si los hongos descomponen materia orgánica, entonces circulan nutrientes. Dado que los hongos circulan nutrientes, ∴ descomponen materia orgánica."],
+   c:3,
+   fb:"La opción 4 es FALACIA DE AFIRMACIÓN DEL CONSECUENTE (inválida). Opción 1 es Modus Tollens (válido). Opción 2 es Modus Ponens (válido). Opción 3 es Simplificación (válida: de 'A y B' → B)."},
+  {n:6,type:"mc",title:"Hay argumentos válidos que no son sólidos",
+   inst:"Determiná si el siguiente enunciado es VERDADERO o FALSO: 'Hay argumentos válidos que no son sólidos.'",
+   ops:["Falso porque todos los argumentos válidos deben tener premisas verdaderas.","Falso porque todos los argumentos válidos deben tener conclusión verdadera.","Verdadero porque los argumentos válidos pueden tener premisas falsas y conclusión falsa, y los sólidos no.","Verdadero porque los argumentos válidos pueden tener premisas verdaderas y conclusión falsa, y los sólidos no."],
+   c:2,
+   fb:"VERDADERO. Un argumento válido puede tener premisas falsas (en cuyo caso la conclusión puede ser V o F). Si las premisas son falsas, el argumento no es sólido. La opción 3 da la razón correcta."},
+  {n:7,type:"dual",title:"Argumentos inductivos — Enumeración incompleta",
+   inst:"Dado: 'El pie de atleta es una infección causada por hongos y es contagioso. La candidiasis es una infección causada por hongos y es contagiosa.' Seleccioná la PREMISA faltante (P) y la CONCLUSIÓN (C) para que resulte ENUMERACIÓN INCOMPLETA.",
+   ops:["Todas las infecciones causadas por hongos son contagiosas.","La fiebre del valle es una infección causada por hongos.","La histoplasmosis es contagiosa.","La tiña del cuero cabelludo es una infección causada por hongos y es contagiosa.","Ninguna enfermedad que no es contagiosa es causada por hongos."],
+   cP:3,cC:0,
+   fb:"Enumeración incompleta: premisas enumeran casos (pie de atleta, candidiasis, tiña del cuero cabelludo — P4) y se generaliza a toda la clase (todas las infecciones por hongos son contagiosas — P1 como conclusión). La conclusión habla de TODA LA CLASE."},
+  {n:8,type:"mc",title:"Fortalecimiento de argumentos inductivos",
+   inst:"¿Qué premisa fortalece SIN que deje de ser ANALOGÍA? 'El moho blanco y el moho negro son hongos filamentosos que se desarrollan en ambientes húmedos y oscuros. ∴ El moho gris se desarrolla en ambientes húmedos y oscuros, dado que es un hongo filamentoso.'",
+   ops:["Todos los hongos filamentosos se desarrollan en ambientes húmedos y oscuros.","El 90% de los hongos filamentosos se desarrollan en ambientes húmedos y oscuros.","El moho verde es un hongo filamentoso y se desarrolla en ambientes húmedos y oscuros.","Algunos hongos filamentosos se desarrollan en ambientes húmedos y luminosos."],
+   c:2,
+   fb:"Para fortalecer la ANALOGÍA: agrego más casos similares. El moho verde como otro hongo filamentoso que también se desarrolla en ambientes húmedos y oscuros. La opción 1 lo convertiría en deductivo. La 4 debilitaría el argumento."},
+  {n:9,type:"darwin",title:"Teoría de la selección natural de Darwin",
+   inst:"Determiná si el siguiente enunciado es VERDADERO o FALSO según Darwin, y elegí la justificación:",
+   stmt:"Los nuevos rasgos que aparecen en un individuo siempre mejoran su aptitud en el ambiente donde vive.",
+   cTF:"F",
+   opts_b:["Los nuevos rasgos aparecen porque el individuo los desarrolla para adaptarse.","Los nuevos rasgos que aparecen nunca afectan la capacidad de adaptación.","Los nuevos rasgos que aparecen hacen más fuerte al individuo.","Los nuevos rasgos que aparecen pueden ser beneficiosos, neutros o perjudiciales."],
+   cB:3,
+   fb:"FALSO. Darwin acepta que los nuevos rasgos surgen al AZAR y pueden ser beneficiosos, NEUTROS o PERJUDICIALES. La selección natural actúa DESPUÉS: filtra los rasgos según su eficacia en el ambiente."},
+  {n:10,type:"mc",title:"Explicación darwiniana o lamarckiana",
+   inst:"¿Cuál de las siguientes opciones explica el fenómeno desde la teoría de la SELECCIÓN NATURAL DE DARWIN? 'Los perezosos presentan garras de entre 8 y 10 cm que les permiten sujetarse a las ramas de los árboles.'",
+   ops:["Los ancestros de los perezosos usaban sus patas y garras para moverse en los árboles, fomentando el desarrollo de garras más grandes. El rasgo adquirido por uso intensivo fue heredado a la descendencia.","Los perezosos fueron creados con garras adaptadas para la vida en los árboles, generando un equilibrio armonioso.","Los ancestros de los perezosos con garras más grandes tuvieron ventaja para moverse en los árboles, volviéndose más aptos y dejando mayor descendencia que heredó el rasgo.","Las grandes garras de los perezosos son resultado de la lotería genética y no tienen relación con el entorno."],
+   c:2,
+   fb:"Darwin: los ancestros con garras más grandes → ventaja en entorno arborícola → mayor aptitud → más descendencia → el rasgo se propaga. La opción 1 es LAMARCK (esfuerzo + herencia de caracteres adquiridos)."}
+]},
+{name:"SET D — Cotidiano y sociedad",exercises:[
+  {n:1,type:"mc",title:"Identificación de argumentos",
+   inst:"Determiná cuál de los siguientes fragmentos es un argumento.",
+   ops:["Algunos hongos resultan tóxicos para los humanos y producen síntomas como malestar estomacal y daños en el hígado y riñones. Lo cual justifica ciertos cuidados en su uso.","Los hongos se usan en muchas preparaciones alimenticias, como la salsa de soja o panes.","No se recomienda comer setas de la naturaleza luego de recogerlas.","Si un hongo no es venenoso y se cocina a temperaturas correctas, entonces es comestible."],
+   c:0,
+   fb:"La opción 1 contiene el indicador de conclusión 'lo cual justifica' que señala que lo que le precede son las razones a favor de la conclusión 'se requieren ciertos cuidados'. Las opciones 2 y 3 son enunciados simples. La 4 es un condicional."},
+  {n:2,type:"mc",title:"Identificación de la conclusión",
+   inst:"Indicá cuál es la conclusión del siguiente argumento:",
+   text:"Es posible prevenir intoxicaciones por consumo de hongos venenosos mediante la identificación de la especie. Consecuentemente, se debe evitar consumirlos, puesto que su consumo irresponsable puede causar sudoración, náuseas, vómitos, cólicos.",
+   ops:["Es posible prevenir intoxicaciones mediante la identificación de la especie.","Se debe evitar el consumo de hongos venenosos.","Su consumo irresponsable puede causar sudoración, náuseas, vómitos, cólicos.","Se debe evitar consumirlos."],
+   c:1,
+   fb:"'Consecuentemente' es indicador de conclusión. 'Puesto que' es indicador de premisa. La conclusión es 'se debe evitar el consumo de hongos venenosos' (enunciada de manera COMPLETA, incluyendo 'venenosos' que queda implícito en el argumento)."},
+  {n:3,type:"mc",title:"Evaluación de enunciados complejos",
+   inst:"Dadas las siguientes oraciones VERDADERAS: 'El micelio absorbe nutrientes de su entorno' y 'El micelio descompone la materia orgánica'. Determiná cuál de los siguientes enunciados es FALSO.",
+   ops:["El micelio descompone la materia orgánica y además absorbe los nutrientes de su entorno.","Si el micelio absorbe nutrientes de su entorno, entonces no descompone la materia orgánica.","Si el micelio descompone la materia orgánica, entonces absorbe los nutrientes de su entorno.","O el micelio descompone la materia orgánica o no absorbe nutrientes de su entorno."],
+   c:1,
+   fb:"La opción 2 es un condicional con antecedente V ('absorbe nutrientes' es V) y consecuente F ('no descompone la materia orgánica' es F dado que SÍ descompone). Condicional con antecedente V y consecuente F → FALSO."},
+  {n:4,type:"mc",title:"Tautología, contradicción o contingencia",
+   inst:"Completá para que sea una CONTINGENCIA: 'El micelio es la parte vegetativa del hongo...'",
+   ops:["pero no es la parte vegetativa del hongo.","y no es la parte vegetativa del hongo.","o no es la parte vegetativa del hongo.","aunque crece debajo del suelo."],
+   c:3,
+   fb:"CONTINGENCIA: enunciado cuya verdad depende del contenido empírico, no de la estructura. 'El micelio es la parte vegetativa del hongo aunque crece debajo del suelo' es verdadero en este mundo, pero podría ser falso en otro. No es ni tautología ni contradicción."},
+  {n:5,type:"mc",title:"Identificación de argumentos INVÁLIDOS",
+   inst:"Determiná cuál de los siguientes argumentos es INVÁLIDO.",
+   ops:["Todas las setas son plantas y el champiñón es una seta. Podemos inferir que el champiñón es una planta.","Si el portobello produce micotoxinas, entonces es venenoso. El portobello produce micotoxinas. Luego, el portobello es venenoso.","Si los hongos descomponen materia orgánica, circulan nutrientes. Pero no circulan nutrientes. ∴ Los hongos no descomponen materia orgánica.","Si la trufa negra es abundante, tiene bajo costo. Pero la trufa negra no es abundante. ∴ No tiene bajo costo."],
+   c:3,
+   fb:"La opción 4 es FALACIA DE NEGACIÓN DEL ANTECEDENTE: Si A→B. ¬A. ∴ ¬B. INVÁLIDA. Opción 1 es Instanciación Universal (válida, aunque con premisa falsa). Opción 2 es Modus Ponens (válida). Opción 3 es Modus Tollens (válida)."},
+  {n:6,type:"mc",title:"Hay argumentos sólidos que no son válidos",
+   inst:"Determiná si el siguiente enunciado es VERDADERO o FALSO: 'Hay argumentos sólidos que no son válidos.'",
+   ops:["Verdadero porque hay argumentos sólidos que tienen contraejemplos.","Verdadero porque hay argumentos sólidos con conclusión falsa.","Falso porque los argumentos sólidos no tienen contraejemplos y los argumentos inválidos sí.","Falso porque los argumentos sólidos tienen premisas verdaderas, y los que no son válidos no pueden tenerlas."],
+   c:2,
+   fb:"FALSO. Por definición, un argumento sólido es VÁLIDO + premisas verdaderas. No puede haber argumentos sólidos que no sean válidos. La opción 3 da la razón correcta: los argumentos sólidos no tienen contraejemplos (por ser válidos) y los inválidos sí."},
+  {n:7,type:"dual_sil",title:"Argumentos inductivos — Silogismo inductivo",
+   inst:"El siguiente argumento concluye que 'El champiñón ostra puede retener contaminantes del ambiente'. Seleccioná las DOS PREMISAS faltantes para que sea SILOGISMO INDUCTIVO.",
+   opts_p:["El champiñón ostra es un hongo hiperacumulador.","El shiitake puede retener contaminantes del ambiente.","El champignón de París es un hongo hiperacumulador y puede retener contaminantes.","La mayoría de los hongos hiperacumuladores puede retener contaminantes del ambiente.","Todos los hongos hiperacumuladores pueden retener contaminantes del ambiente."],
+   cP1:0,cP2:3,
+   fb:"Silogismo inductivo: generalización estadística ('la mayoría de los hongos hiperacumuladores puede retener contaminantes' — P4) + caso individual ('el champiñón ostra es un hongo hiperacumulador' — P1) → conclusión probable. Si usáramos P5 ('todos'), sería deductivo."},
+  {n:8,type:"mc",title:"Fortalecimiento de argumentos inductivos",
+   inst:"¿Qué premisa fortalece SIN que deje de ser ANALOGÍA? 'Las gírgolas y los portobellos son hongos comestibles con gran valor nutricional. ∴ Las trufas negras tienen gran valor nutricional, pues también son hongos comestibles.'",
+   ops:["Todas las variedades de hongos comestibles tienen gran valor nutricional.","El 90% de las variedades de hongos comestibles posee gran valor nutricional.","El níscalo es una variedad de hongo comestible y posee gran valor nutricional.","Algunas variedades de hongos son comestibles."],
+   c:2,
+   fb:"Para fortalecer la ANALOGÍA: agrego otro caso similar. El níscalo como hongo comestible con gran valor nutricional. La opción 1 lo convertiría en deductivo. La 4 no agrega información relevante a la propiedad inferida."},
+  {n:9,type:"darwin",title:"Teoría de la selección natural de Darwin",
+   inst:"Determiná si el siguiente enunciado es VERDADERO o FALSO según Darwin, y elegí la justificación:",
+   stmt:"Los individuos heredan de sus progenitores solo los rasgos que favorecen su aptitud en el ambiente.",
+   cTF:"F",
+   opts_b:["Los individuos heredan todos los rasgos de sus progenitores y luego los modifican.","Los individuos desarrollan por sí mismos los rasgos que les permiten sobrevivir.","Los rasgos que hereda un individuo dependen del ambiente.","Los individuos heredan la mayoría de los rasgos de sus progenitores, sean estos beneficiosos, neutros o perjudiciales."],
+   cB:3,
+   fb:"FALSO. Los individuos heredan la MAYORÍA de los rasgos de sus progenitores, independientemente de si son beneficiosos o no. La herencia no selecciona solo los rasgos 'útiles'. La selección actúa a nivel poblacional, a lo largo del tiempo."},
+  {n:10,type:"mc",title:"Explicación darwiniana o lamarckiana",
+   inst:"¿Cuál de las siguientes opciones explica el fenómeno desde la teoría de LAMARCK? 'Los humanos presentan un cerebro muy voluminoso e interconectado, más complejo que el de otras especies animales.'",
+   ops:["El volumen y complejidad del cerebro humano es resultado de la presión de la selección natural. Los ancestros con un cerebro más interconectado tenían ventajas en la supervivencia y fertilidad.","La evolución de las especies tiene una tendencia o dirección: va siempre de lo más simple a lo más complejo. Por ello la especie más evolucionada, los humanos, presenta un cerebro más complejo e interconectado.","El cerebro voluminoso de los humanos es resultado de la pura lotería genética, no guarda relación con su historia natural.","Los humanos fueron creados con un cerebro voluminoso para ser la especie dominante."],
+   c:1,
+   fb:"La opción 2 es LAMARCK: la evolución tiene DIRECCIÓN hacia la complejidad (de simples a complejos). Los humanos serían el punto más 'evolucionado'. La opción 1 es DARWIN (selección natural, sin dirección fijada). La 4 es creacionismo."}
 ]}
 ];
 
-const CONCEPTS = [
-  {term:"Argumento, Proposición e Indicadores",chip:"Argumentos",cls:"ch-base",def:"Argumento: premisas + conclusión única (puede estar en cualquier posición). Proposición: lo que el enunciado afirma/niega (una oración ambigua puede expresar dos proposiciones). Indicadores de PREMISA: 'dado que', 'puesto que', 'porque', 'pues', 'debido a'. Indicadores de CONCLUSIÓN: 'por lo tanto', 'luego', 'en consecuencia', 'se sigue que', 'podemos inferir'.",ex:"Al reconstruir argumentos: atender a las proposiciones, no a las oraciones exactas."},
-  {term:"Conectivas lógicas",chip:"Enunciados",cls:"ch-base",def:"Negación: V cuando el negado es F. Conjunción (y): V solo cuando AMBOS son V. Disyunción inclusiva (o): V cuando AL MENOS UNO es V. Disyunción exclusiva (o bien…o bien): V cuando UNO Y SOLO UNO es V. Condicional (si→entonces): F solo cuando A es V y B es F. Bicondicional (siempre y cuando): V cuando ambos tienen el mismo valor.",ex:"Condicional: 'Si llueve, me quedo' → F SOLO si llueve (V) y salgo (F)."},
-  {term:"Modalidad: Tautología / Contradicción / Contingencia",chip:"Enunciados",cls:"ch-base",def:"Tautología: siempre V por estructura ('hoy es viernes o no'). Contradicción: siempre F ('hace frío y no hace frío'). Contingencia: V o F según el mundo. Negación de tautología = contradicción. Negación de contradicción = tautología. Tautología ∧ contingencia = contingencia.",ex:"La mayoría de los enunciados cotidianos son contingencias."},
-  {term:"Validez, Solidez y Reglas de Inferencia",chip:"Deductivo",cls:"ch-eval",def:"VÁLIDO: imposible P verdaderas y C falsa. SÓLIDO: válido + P verdaderas. Reglas: Modus Ponens (A→B, A ∴ B), Modus Tollens (A→B, ¬B ∴ ¬A), Sil. Hipotético (A→B, B→C ∴ A→C), Sil. Disyuntivo (A∨B, ¬A ∴ B), Instanciación Universal, Simplificación, Adjunción, Prueba por Absurdo.",ex:"Prueba por absurdo: suponer ¬C, derivar contradicción → concluir C."},
-  {term:"🚨 FALACIAS — AFC y FNA",chip:"Falacias",cls:"ch-fal",def:"AFC: Si A→B. B. ∴ A. INVÁLIDA (A es suficiente para B, no necesario). FNA: Si A→B. ¬A. ∴ ¬B. INVÁLIDA (mismo motivo). DIFERENCIA con formas válidas: MT niega el CONSECUENTE (válido). FNA niega el ANTECEDENTE (inválido). AFC afirma el consecuente (inválido). MP afirma el antecedente (válido).",ex:"AFC: 'Messi es tucumano → es argentino. Messi es argentino. ∴ es tucumano.' FALSO. FNA: 'Messi no es tucumano. ∴ no es argentino.' FALSO."},
-  {term:"Argumentos Inductivos — Los 3 tipos",chip:"Inductivo",cls:"ch-ind",def:"ANALOGÍA: casos similares → CASO PRÓXIMO tendrá la propiedad. Se fortalece con más semejanzas relevantes y más casos. ENUMERACIÓN: casos observados → TODA LA CLASE tiene la propiedad. Se fortalece con muestra representativa y grande. SILOGISMO INDUCTIVO: estadística + caso individual → conclusión probable. Se fortalece aumentando la frecuencia relativa.",ex:"La conclusión revela el tipo: habla del caso próximo (analogía) o de toda la clase (enumeración)."},
-  {term:"Geometría euclidiana y no euclidiana",chip:"Geometría",cls:"ch-geo",def:"Euclidiana: 1 paralela, ∑ángulos = 180°, recta infinita. Hiperbólica (Gauss-Bolyai-Lobachevski): infinitas paralelas, < 180°, recta infinita. Elíptica (Riemann): ninguna paralela, > 180°, recta cerrada. Sistemas axiomáticos modernos — propiedades: INDEPENDENCIA, CONSISTENCIA, COMPLETITUD.",ex:"Las geometrías no euclidianas son consistentes y mostraron que los axiomas de Euclides no son verdades necesarias."},
-  {term:"🌿 Creacionismo, Fijismo y Lamarck",chip:"Darwin",cls:"ch-dar",def:"CREACIONISMO: diseñador inteligente explica la adaptación (argumento del relojero de Paley). FIJISMO: las especies no se transforman una vez creadas. LAMARCK: (1) Complejidad creciente — los organismos se vuelven más complejos con el tiempo. (2) Herencia de caracteres adquiridos — el ambiente genera desafíos, los organismos hacen esfuerzo para adaptarse, esos cambios se heredan.",ex:"El fijismo es refutado por el registro fósil. La tesis de Lamarck es refutada porque no hay mecanismo para que los cambios adquiridos se hereden."},
-  {term:"🌿 Darwin — Origen Común y Selección Natural",chip:"Darwin",cls:"ch-dar",def:"ORIGEN COMÚN: las homologías se explican por ancestría común. Árbol de la vida: diversificación sin dirección fijada. SELECCIÓN NATURAL: herencia con variación → rasgos más eficaces → mayor aptitud (éxito reproductivo diferencial) → se propagan en la población. La aptitud NO es 'ser más fuerte'. Fuentes: Malthus (lucha por supervivencia) y selección artificial.",ex:"La jirafa con cuello más largo comía más, vivía más, dejaba más descendencia → ese rasgo se propagó. No hubo esfuerzo consciente."},
-  {term:"🌿 Historia de la Ciencia — Por qué importa",chip:"Darwin",cls:"ch-dar",def:"La historia de la ciencia permite: (1) ver los SUPUESTOS que naturalizamos — la distancia histórica los hace evidentes. (2) entender que el conocimiento científico está SITUADO HISTÓRICAMENTE — es influido por factores sociales, culturales, económicos. (3) reflexionar sobre el CAMBIO EN CIENCIA — teorías robustas fueron abandonadas. La ciencia no es un cuerpo de verdades eternas.",ex:"Shapiro: la historia nos permite ver cómo los supuestos culturales moldean la ciencia. Eso es difícil de ver desde adentro del presente."},
-];
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let G={selLevel:-1,selExam:-1,qs:[],cur:0,score:0,streak:0,maxStreak:0,correct:0,answered:false,pending:[],log:[],tv:null,isExam:false};
+let EX={setIdx:-1,exIdx:0,answers:[],doneFirst:false};
 
-let G={selLevel:-1,questions:[],currentQ:0,score:0,streak:0,maxStreak:0,correctCount:0,answered:false,isExam:false,pending:[],log:[],tv:null};
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+function setTab(t){
+  ['trivia','exam','study'].forEach(id=>{
+    document.getElementById('tab-'+id).style.display=t===id?'':'none';
+    document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',['trivia','exam','study'][i]===t));
+  });
+  if(t==='study') buildStudy('all');
+}
+function buildStudy(f){
+  const el=document.getElementById('studyCards');
+  const list=f==='all'?CONCEPTS:CONCEPTS.filter(c=>c.cat===f);
+  el.innerHTML=list.map(c=>`<div class="study-card"><div class="sc-chip ${c.cls}">${c.chip}</div><div class="sc-term">${c.term}</div><div class="sc-def">${c.def}</div><div class="sc-ex">${c.ex}</div></div>`).join('');
+}
+function filterStudy(f,btn){
+  document.querySelectorAll('.tf').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  buildStudy(f);
+}
 
-function calcDelay(wrongCount){const remaining=G.questions.length-G.currentQ;if(remaining<=0)return 0;const base=Math.min(60,remaining*8);const factor=wrongCount>=3?0.35:wrongCount===2?0.6:1.0;return Math.max(0,Math.round(base*factor));}
-
-function setMode(m){['trivia','study','exam'].forEach(id=>{const cap=id.charAt(0).toUpperCase()+id.slice(1);document.getElementById('mode'+cap+'Btn').classList.toggle('active',m===id);document.getElementById(id+'Section').style.display=m===id?'':'none';});if(m==='study')buildStudyCards('all');}
-function buildStudyCards(filter){const el=document.getElementById('studyCards');const list=filter==='all'?CONCEPTS:CONCEPTS.filter(x=>x.chip===filter);el.innerHTML=list.map(c=>`<div class="study-card"><div class="chip ${c.cls}">${c.chip}</div><div class="sterm">${c.term}</div><div class="sdef">${c.def}</div><div class="sex">${c.ex}</div></div>`).join('');}
-function filterStudy(f,btn){document.querySelectorAll('.topic-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');buildStudyCards(f);}
-function sel(idx){G.selLevel=idx;document.querySelectorAll('.level-card').forEach((c,i)=>c.classList.toggle('sel',i===idx));const btn=document.getElementById('startBtn');btn.disabled=false;btn.textContent=`Empezar "${LEVELS[idx].name}" →`;}
-function startQuiz(){if(G.selLevel<0)return;initSession(shuffle([...LEVELS[G.selLevel].questions]),false);}
-function startExamMode(){let pool=[];LEVELS.forEach(lv=>{const s=shuffle([...lv.questions]);pool=pool.concat(s.slice(0,3));});initSession(shuffle(pool),true);}
-function initSession(questions,isExam){if(G.tv)clearInterval(G.tv);G.questions=questions;G.currentQ=0;G.score=0;G.streak=0;G.maxStreak=0;G.correctCount=0;G.answered=false;G.isExam=isExam;G.pending=[];G.tv=null;G.log=questions.map(q=>({q:q.q,cat:q.cat,fb:q.fb,attempts:[]}));showScreen('quiz');showNext();}
-
-function showNext(){hideBanner();const now=Date.now();const due=G.pending.find(r=>r.dueAt<=now);if(due){G.pending=G.pending.filter(r=>r!==due);renderQ(due.q,due.li,true);return;}if(G.currentQ<G.questions.length){renderQ(G.questions[G.currentQ],G.currentQ,false);G.currentQ++;return;}if(G.pending.length>0){waitNext();return;}showResults();}
-function waitNext(){const next=G.pending.reduce((a,b)=>a.dueAt<b.dueAt?a:b);const wait=Math.max(0,next.dueAt-Date.now());if(wait<300){G.pending=G.pending.filter(r=>r!==next);renderQ(next.q,next.li,true);return;}showTimerBanner(wait);}
-function showTimerBanner(totalMs){const banner=document.getElementById('reviewBanner');banner.classList.add('show');let rem=Math.ceil(totalMs/1000);if(G.tv)clearInterval(G.tv);updTimer(rem,rem);G.tv=setInterval(()=>{rem--;if(rem<=0){clearInterval(G.tv);G.tv=null;hideBanner();showNext();}else updTimer(rem,Math.ceil(totalMs/1000));},1000);}
-function updTimer(rem,total){document.getElementById('reviewTimer').textContent=rem+'s';const arc=document.getElementById('timerArc');arc.style.strokeDashoffset=88*(1-rem/total);}
-function hideBanner(){document.getElementById('reviewBanner').classList.remove('show');if(G.tv){clearInterval(G.tv);G.tv=null;}}
-
+// ═══════════════════════════════════════════
+// TRIVIA FLOW
+// ═══════════════════════════════════════════
+function selLevel(idx){
+  G.selLevel=idx;
+  document.querySelectorAll('.lcard').forEach((c,i)=>c.classList.toggle('sel',i===idx));
+  const btn=document.getElementById('startBtn');
+  btn.disabled=false;
+  btn.textContent=`Empezar Nivel ${idx+1}: ${LEVELS[idx].name} →`;
+}
+function startTrivia(){
+  if(G.selLevel<0) return;
+  const qs=shuffle([...LEVELS[G.selLevel].questions]);
+  initSession(qs,false);
+}
+function initSession(qs,isExam){
+  if(G.tv) clearInterval(G.tv);
+  G.qs=qs;G.cur=0;G.score=0;G.streak=0;G.maxStreak=0;G.correct=0;G.answered=false;G.pending=[];G.log=qs.map(q=>({q:q.q,cat:q.cat,fb:q.fb,attempts:[]}));G.tv=null;
+  showScreen('quiz');
+  renderQ(G.qs[0],0,false);G.cur=1;
+}
 function renderQ(q,li,isRev){
   G.answered=false;
-  const total=G.questions.length,prog=Math.min(G.currentQ,total);
-  document.getElementById('quizMeta').textContent=`Pregunta ${prog} de ${total}`;
-  document.getElementById('quizLevelName').textContent=G.isExam?'🎯 Simulacro de parcial':LEVELS[G.selLevel]?.name||'Simulacro';
-  document.getElementById('quizScore').textContent=`${G.score} pts`;
-  document.getElementById('progressFill').style.width=`${(prog/total)*100}%`;
-  document.getElementById('qCategory').textContent=q.cat||'Pregunta';
-  document.getElementById('qText').textContent=q.q;
-  const rt=document.getElementById('qReviewTag');
-  isRev?rt.classList.add('show'):rt.classList.remove('show');
+  const total=G.qs.length,prog=Math.min(G.cur,total);
+  document.getElementById('qMeta').textContent=`Pregunta ${prog} de ${total}`;
+  document.getElementById('qLevelName').textContent=G.selLevel>=0?LEVELS[G.selLevel].name:'Simulacro';
+  document.getElementById('qScore').textContent=`${G.score} pts`;
+  document.getElementById('progFill').style.width=`${(prog/total)*100}%`;
+  document.getElementById('qcat').textContent=q.cat||'Pregunta';
+  document.getElementById('qtext').textContent=q.q;
+  const sub=document.getElementById('qsub');
+  if(q.sub){sub.textContent=q.sub;sub.style.display=''}else sub.style.display='none';
+  document.getElementById('rtag').classList.toggle('on',isRev);
   updateStreak();
 
-  /* ═══════════════════════════════════════════════════
-     FIX PRINCIPAL: barajar opciones en cada render
-     ════════════════════════════════════════════════ */
   const correctText=q.ops[q.c];
-  const shuffledOps=shuffle([...q.ops]);
-  const newCorrectIdx=shuffledOps.indexOf(correctText);
-
+  const sOps=shuffle([...q.ops]);
+  const newC=sOps.indexOf(correctText);
   const letters=['A','B','C','D'];
-  const container=document.getElementById('optionsContainer');
-  container.innerHTML='';
-  shuffledOps.forEach((op,idx)=>{
+  const cont=document.getElementById('optsContainer');
+  cont.innerHTML='';
+  sOps.forEach((op,idx)=>{
     const btn=document.createElement('button');
-    btn.className='opt-btn';
-    btn.innerHTML=`<span class="oletter">${letters[idx]}</span><span>${op}</span>`;
-    btn.onclick=()=>handleAns(idx,btn,newCorrectIdx,q,li,isRev);
-    container.appendChild(btn);
+    btn.className='opt';
+    btn.innerHTML=`<span class="olet">${letters[idx]}</span><span>${op}</span>`;
+    btn.onclick=()=>handleAns(idx,btn,newC,q,li,isRev);
+    cont.appendChild(btn);
   });
-  document.getElementById('feedbackBox').className='feedback-box';
+  document.getElementById('fbBox').className='fb-box';
   document.getElementById('nextBtn').className='btn-next';
 }
-
-function handleAns(chosen,btn,correctIdx,q,li,isRev){
-  if(G.answered)return;
+function handleAns(chosen,btn,cIdx,q,li,isRev){
+  if(G.answered) return;
   G.answered=true;
-  const allBtns=document.querySelectorAll('.opt-btn');
+  const allBtns=document.querySelectorAll('.opt');
   allBtns.forEach(b=>b.disabled=true);
-  const correct=chosen===correctIdx;
-  if(correct){btn.classList.add('correct');const bonus=G.streak>=2?5:0;G.score+=10+bonus;G.streak++;G.maxStreak=Math.max(G.maxStreak,G.streak);G.correctCount++;}
-  else{btn.classList.add('wrong');allBtns[correctIdx].classList.add('show-correct');G.streak=0;}
+  const ok=chosen===cIdx;
+  if(ok){btn.classList.add('ok');const bonus=G.streak>=2?5:0;G.score+=10+bonus;G.streak++;G.maxStreak=Math.max(G.maxStreak,G.streak);G.correct++;}
+  else{btn.classList.add('err');allBtns[cIdx].classList.add('show-ok');G.streak=0;}
   updateStreak();
-  document.getElementById('quizScore').textContent=`${G.score} pts`;
-  if(G.log[li])G.log[li].attempts.push(correct);
+  document.getElementById('qScore').textContent=`${G.score} pts`;
+  if(G.log[li]) G.log[li].attempts.push(ok);
+  
+  const remaining=G.qs.length-G.cur;
   let schedHtml='';
-  if(!correct){const nWrong=(G.log[li]?.attempts||[]).filter(a=>!a).length;const delay=calcDelay(nWrong);G.pending.push({q,li,dueAt:Date.now()+delay*1000});schedHtml=delay===0?`<div class="sched-badge soon">⚡ Esta pregunta vuelve inmediatamente al terminar las demás</div>`:`<div class="sched-badge soon">⏱ Repaso en ~${delay}s — mientras seguís con las otras preguntas</div>`;}
-  else{const prevWrong=(G.log[li]?.attempts||[]).filter(a=>!a).length;schedHtml=prevWrong>0?`<div class="sched-badge ok">✅ ¡La clavaste esta vez! Repasar en 1 día.</div>`:`<div class="sched-badge good">⭐ ¡Perfecto al primer intento! Repasar en 2 días.</div>`;}
-  if(!G.isExam){const fb=document.getElementById('feedbackBox');document.getElementById('fbText').textContent=q.fb;document.getElementById('fbTitle').textContent=correct?(G.streak>=2?`🔥 ¡Racha de ${G.streak}! +${15} pts`:'✓ ¡Correcto! +10 pts'):'📌 Para tener en cuenta:';fb.className='feedback-box show'+(correct?'':' wfb');document.getElementById('schedInfo').innerHTML=schedHtml;}
+  if(!ok){
+    const nW=(G.log[li]?.attempts||[]).filter(a=>!a).length;
+    const delay=Math.max(0,Math.round(Math.min(60,remaining*8)*(nW>=3?0.35:nW===2?0.6:1)));
+    G.pending.push({q,li,dueAt:Date.now()+delay*1000});
+    schedHtml=delay===0?`<div class="sched red">⚡ Vuelve inmediatamente</div>`:`<div class="sched red">⏱ Repaso en ~${delay}s</div>`;
+  } else {
+    const prev=(G.log[li]?.attempts||[]).filter(a=>!a).length;
+    schedHtml=prev>0?`<div class="sched green">✅ ¡La clavaste! Repasar en 1 día.</div>`:`<div class="sched blue">⭐ ¡Perfecto! Repasar en 2 días.</div>`;
+  }
+  
+  const fb=document.getElementById('fbBox');
+  document.getElementById('fbText').textContent=q.fb;
+  document.getElementById('fbTitle').textContent=ok?(G.streak>=2?`🔥 Racha de ${G.streak}! +${15} pts`:'✓ ¡Correcto! +10 pts'):'📌 Para recordar:';
+  document.getElementById('schedInfo').innerHTML=schedHtml;
+  fb.className='fb-box on'+(ok?'':' wrong');
+  
   const nb=document.getElementById('nextBtn');
-  nb.className='btn-next show';
-  nb.textContent=(G.currentQ<G.questions.length||G.pending.length>0)?'Siguiente →':'Ver resultados →';
+  nb.className='btn-next on';
+  nb.textContent=(G.cur<G.qs.length||G.pending.length>0)?'Siguiente →':'Ver resultados →';
 }
-
-function nextQ(){const now=Date.now();const due=G.pending.find(r=>r.dueAt<=now);if(due){G.pending=G.pending.filter(r=>r!==due);renderQ(due.q,due.li,true);return;}if(G.currentQ<G.questions.length){renderQ(G.questions[G.currentQ],G.currentQ,false);G.currentQ++;return;}if(G.pending.length>0){waitNext();return;}showResults();}
+function nextQ(){
+  const now=Date.now();
+  const due=G.pending.find(r=>r.dueAt<=now);
+  if(due){G.pending=G.pending.filter(r=>r!==due);renderQ(due.q,due.li,true);return;}
+  if(G.cur<G.qs.length){const q=G.qs[G.cur];G.cur++;renderQ(q,G.cur-1,false);return;}
+  if(G.pending.length>0){waitNext();return;}
+  showResults();
+}
+function waitNext(){
+  const next=G.pending.reduce((a,b)=>a.dueAt<b.dueAt?a:b);
+  const wait=Math.max(0,next.dueAt-Date.now());
+  if(wait<300){G.pending=G.pending.filter(r=>r!==next);renderQ(next.q,next.li,true);return;}
+  showTimerBanner(wait);
+}
+function showTimerBanner(totalMs){
+  const banner=document.getElementById('timerBanner');
+  banner.classList.add('on');
+  let rem=Math.ceil(totalMs/1000);
+  if(G.tv) clearInterval(G.tv);
+  updTimer(rem,rem);
+  G.tv=setInterval(()=>{rem--;if(rem<=0){clearInterval(G.tv);G.tv=null;banner.classList.remove('on');nextQ();}else updTimer(rem,Math.ceil(totalMs/1000));},1000);
+}
+function updTimer(rem,total){
+  document.getElementById('timerNum').textContent=rem+'s';
+  const arc=document.getElementById('timerArc');
+  arc.style.strokeDashoffset=88*(1-rem/total);
+}
 function updateStreak(){document.getElementById('streakBar').textContent=G.streak>=2?`🔥 Racha de ${G.streak} correctas`:''}
+function showResults(){
+  showScreen('results');
+  const total=G.qs.length,pct=Math.round((G.correct/total)*100);
+  document.getElementById('resRing').style.setProperty('--pct',`${pct*3.6}deg`);
+  document.getElementById('ringLabel').textContent=`${pct}%`;
+  let title,sub;
+  if(pct===100){title='¡Perfecto! 🎉';sub='Dominás este nivel. Pasá al siguiente o hacé el simulacro.';}
+  else if(pct>=80){title='¡Muy bien! 💪';sub='Estás cerca. Repasá lo que erraste.';}
+  else if(pct>=60){title='Vamos bien 🧠';sub='Tenés la base. Reforzá los errores.';}
+  else{title='A repasar 📚';sub='Leé el modo Repaso y volvé a intentarlo.';}
+  document.getElementById('resTitle').textContent=title;
+  document.getElementById('resSub').textContent=sub;
+  document.getElementById('resBreak').innerHTML=`<div class="bi"><span>✅ Correctas</span><span class="bv">${G.correct}/${total}</span></div><div class="bi"><span>⭐ Puntaje</span><span class="bv">${G.score} pts</span></div><div class="bi"><span>🔥 Mejor racha</span><span class="bv">${G.maxStreak}</span></div><div class="bi"><span>📊 Resultado</span><span class="bv">${pct}%</span></div>`;
+  buildReport();
+}
+function buildReport(){
+  const el=document.getElementById('errReport');
+  const wrong=G.log.filter(l=>l.attempts.some(a=>!a));
+  if(!wrong.length){el.innerHTML='';return;}
+  el.innerHTML='<div style="font-family:var(--fh);font-size:14px;margin-bottom:9px">❌ Preguntas para repasar</div>'+wrong.map(l=>`<div class="rep-item rw"><div class="riq">${l.q}</div><div class="rimeta">📂 ${l.cat}</div><div class="riexpl">${l.fb}</div></div>`).join('');
+}
+function retryLevel(){G.cur=0;startTrivia();}
 
-function showResults(){showScreen('results');const total=G.questions.length,pct=Math.round((G.correctCount/total)*100);document.getElementById('resultsRing').style.setProperty('--pct',`${pct*3.6}deg`);document.getElementById('ringLabel').textContent=`${pct}%`;let title,sub;if(pct===100){title='¡Perfecto! 🎉';sub='Dominás este tema al 100%. Vas a llegar sobrando al 16.';}else if(pct>=80){title='¡Muy bien! 💪';sub='Estás muy cerca. Repasá lo que erraste antes del 16.';}else if(pct>=60){title='Vamos bien 🧠';sub='Ya tenés la base. Reforzá lo que te falta.';}else if(pct>=40){title='Hay que seguir estudiando 📚';sub='Chequeá el modo Repaso antes de reintentar.';}else{title='Arranquemos de cero 🔄';sub='Usá el modo Repaso, leé los conceptos y volvé.';}document.getElementById('resTitle').textContent=title;document.getElementById('resSub').textContent=sub;document.getElementById('resBreakdown').innerHTML=`<div class="bitem"><span>✅ Correctas</span><span class="bval">${G.correctCount} / ${total}</span></div><div class="bitem"><span>⭐ Puntaje</span><span class="bval">${G.score} pts</span></div><div class="bitem"><span>🔥 Mejor racha</span><span class="bval">${G.maxStreak} seguidas</span></div><div class="bitem"><span>📊 Resultado</span><span class="bval">${pct}%</span></div>`;buildReport();}
-function buildReport(){const el=document.getElementById('errorReport');const log=G.log.filter(l=>l.attempts.length>0);if(!log.length){el.innerHTML='';return;}const wrong=log.filter(l=>l.attempts.some(a=>!a));const allRight=log.filter(l=>l.attempts.every(a=>a));let html='';if(wrong.length){html+=`<div class="rep-section"><div class="rep-title">❌ Preguntas que te costaron — repasalas más seguido</div>`;wrong.forEach(l=>{const nW=l.attempts.filter(a=>!a).length,nC=l.attempts.filter(a=>a).length;const dots=l.attempts.map(a=>`<span class="dot ${a?'c':'w'}"></span>`).join('');let rev,cls;if(nW>=3){rev='⚠️ Repasar HOY — fallaste '+nW+' veces';cls='urgent';}else if(nW===2){rev='📅 Repasar mañana (2 errores)';cls='med';}else{rev='📅 Repasar en 1 día (1 error)';cls='med';}html+=`<div class="rep-item rw"><div class="riq">${l.q}</div><div class="rimeta"><span>📂 ${l.cat}</span><span>${dots} ${nC}✓ ${nW}✗</span></div><div class="rirev ${cls}">${rev}</div><div class="riexpl">${l.fb}</div></div>`;});html+='</div>';}if(allRight.length){html+=`<div class="rep-section"><div class="rep-title">✅ Lo que respondiste bien al primer intento</div>`;allRight.forEach(l=>{html+=`<div class="rep-item rc"><div class="riq">${l.q}</div><div class="rimeta"><span>📂 ${l.cat}</span><span><span class="dot c"></span> Primer intento</span></div><div class="rirev chill">📅 Repasar en 2 días</div></div>`;});html+='</div>';}el.innerHTML=html;}
+// ═══════════════════════════════════════════
+// EXAM FORMAT FLOW
+// ═══════════════════════════════════════════
+function selExam(idx){
+  EX.setIdx=idx;
+  document.querySelectorAll('.ecard').forEach((c,i)=>c.classList.toggle('sel',i===idx));
+  const btn=document.getElementById('startExamBtn');
+  btn.disabled=false;
+  btn.textContent=`Empezar ${EXAM_SETS[idx].name} →`;
+}
+function startExam(){
+  if(EX.setIdx<0) return;
+  EX.exIdx=0;
+  EX.answers=[];
+  EX.doneFirst=false;
+  showScreen('examScreen');
+  document.getElementById('exSetName').textContent=EXAM_SETS[EX.setIdx].name;
+  buildPips();
+  renderExercise();
+}
+function buildPips(){
+  const set=EXAM_SETS[EX.setIdx];
+  document.getElementById('exPips').innerHTML=set.exercises.map((e,i)=>`<div class="ex-pip pend" id="pip${i}">${i+1}</div>`).join('');
+}
+function renderExercise(){
+  const set=EXAM_SETS[EX.setIdx];
+  const ex=set.exercises[EX.exIdx];
+  const prog=((EX.exIdx)/set.exercises.length)*100;
+  document.getElementById('exMeta').textContent=`Ejercicio ${EX.exIdx+1} de ${set.exercises.length}`;
+  document.getElementById('exProgFill').style.width=prog+'%';
+  document.getElementById('pip'+EX.exIdx).className='ex-pip cur';
+  document.getElementById('exFbBox').style.display='none';
+  document.getElementById('exNextBtn').style.display='none';
+  EX.doneFirst=false;
+  
+  const body=document.getElementById('exBody');
+  body.innerHTML=`<div class="ex-inst">${ex.title}: ${ex.inst}</div>${ex.text?`<div class="ex-text">${ex.text}</div>`:ex.stmt?`<div class="ex-text">📌 ${ex.stmt}</div>`:''}`;
 
-function retryLevel(){if(G.isExam)startExamMode();else startQuiz();}
-function goHome(){if(G.tv){clearInterval(G.tv);G.tv=null;}showScreen('home');}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+  if(ex.type==='mc'){
+    renderMC(ex);
+  } else if(ex.type==='dual'){
+    renderDual(ex);
+  } else if(ex.type==='dual_sil'){
+    renderDualSil(ex);
+  } else if(ex.type==='darwin'){
+    renderDarwin(ex);
+  }
+}
+function renderMC(ex){
+  const letters=['1','2','3','4'];
+  const body=document.getElementById('exBody');
+  body.innerHTML+=`<div class="opts" id="exOpts">${ex.ops.map((op,i)=>`<button class="opt" onclick="answerMC(${i})" id="exopt${i}"><span class="olet">${letters[i]}</span><span>${op}</span></button>`).join('')}</div>`;
+}
+function answerMC(chosen){
+  const ex=EXAM_SETS[EX.setIdx].exercises[EX.exIdx];
+  document.querySelectorAll('[id^=exopt]').forEach(b=>b.disabled=true);
+  const ok=chosen===ex.c;
+  document.getElementById(`exopt${chosen}`).classList.add(ok?'ok':'err');
+  if(!ok) document.getElementById(`exopt${ex.c}`).classList.add('show-ok');
+  EX.answers.push(ok?1:0);
+  document.getElementById('pip'+EX.exIdx).className=`ex-pip ${ok?'ok':'err'}`;
+  showExFb(ok,ex.fb);
+}
+function renderDual(ex){
+  const body=document.getElementById('exBody');
+  const letters=['1','2','3','4','5'];
+  body.innerHTML+=`<div class="dual-label">Premisa faltante (P):</div><div class="opts" id="exOptsP">${ex.ops.map((op,i)=>`<button class="opt" onclick="answerDualP(${i})" id="exoptP${i}"><span class="olet">${letters[i]}</span><span>${op}</span></button>`).join('')}</div><div class="dual-label" id="dualCLabel" style="display:none">Conclusión (C):</div><div class="opts" id="exOptsC" style="display:none">${ex.ops.map((op,i)=>`<button class="opt" onclick="answerDualC(${i})" id="exoptC${i}"><span class="olet">${letters[i]}</span><span>${op}</span></button>`).join('')}</div>`;
+}
+let dualPOk=false;
+function answerDualP(chosen){
+  const ex=EXAM_SETS[EX.setIdx].exercises[EX.exIdx];
+  document.querySelectorAll('[id^=exoptP]').forEach(b=>b.disabled=true);
+  const ok=chosen===ex.cP;
+  dualPOk=ok;
+  document.getElementById(`exoptP${chosen}`).classList.add(ok?'ok':'err');
+  if(!ok) document.getElementById(`exoptP${ex.cP}`).classList.add('show-ok');
+  document.getElementById('dualCLabel').style.display='';
+  document.getElementById('exOptsC').style.display='';
+}
+function answerDualC(chosen){
+  const ex=EXAM_SETS[EX.setIdx].exercises[EX.exIdx];
+  document.querySelectorAll('[id^=exoptC]').forEach(b=>b.disabled=true);
+  const ok=chosen===ex.cC;
+  const bothOk=dualPOk&&ok;
+  document.getElementById(`exoptC${chosen}`).classList.add(ok?'ok':'err');
+  if(!ok) document.getElementById(`exoptC${ex.cC}`).classList.add('show-ok');
+  EX.answers.push(bothOk?1:0);
+  document.getElementById('pip'+EX.exIdx).className=`ex-pip ${bothOk?'ok':'err'}`;
+  showExFb(bothOk,ex.fb);
+}
+let dualP1Ok=false,dualP2Ok=false;
+function renderDualSil(ex){
+  const body=document.getElementById('exBody');
+  const letters=['1','2','3','4','5'];
+  body.innerHTML+=`<div class="dual-label">Primera premisa (P1):</div><div class="opts" id="exOptsP1">${ex.opts_p.map((op,i)=>`<button class="opt" onclick="answerDualP1(${i})" id="exoptP1_${i}"><span class="olet">${letters[i]}</span><span>${op}</span></button>`).join('')}</div><div class="dual-label" id="dualP2Label" style="display:none">Segunda premisa (P2):</div><div class="opts" id="exOptsP2" style="display:none">${ex.opts_p.map((op,i)=>`<button class="opt" onclick="answerDualP2(${i})" id="exoptP2_${i}"><span class="olet">${letters[i]}</span><span>${op}</span></button>`).join('')}</div>`;
+}
+function answerDualP1(chosen){
+  const ex=EXAM_SETS[EX.setIdx].exercises[EX.exIdx];
+  document.querySelectorAll('[id^=exoptP1_]').forEach(b=>b.disabled=true);
+  const ok=(chosen===ex.cP1||chosen===ex.cP2);
+  dualP1Ok=ok;
+  document.getElementById(`exoptP1_${chosen}`).classList.add(ok?'ok':'err');
+  if(!ok){const ci=ex.cP1;document.getElementById(`exoptP1_${ci}`).classList.add('show-ok');}
+  document.getElementById('dualP2Label').style.display='';
+  document.getElementById('exOptsP2').style.display='';
+}
+function answerDualP2(chosen){
+  const ex=EXAM_SETS[EX.setIdx].exercises[EX.exIdx];
+  document.querySelectorAll('[id^=exoptP2_]').forEach(b=>b.disabled=true);
+  const ok=(chosen===ex.cP1||chosen===ex.cP2);
+  const bothOk=dualP1Ok&&ok;
+  document.getElementById(`exoptP2_${chosen}`).classList.add(ok?'ok':'err');
+  if(!ok){const ci=ex.cP2;document.getElementById(`exoptP2_${ci}`).classList.add('show-ok');}
+  EX.answers.push(bothOk?1:0);
+  document.getElementById('pip'+EX.exIdx).className=`ex-pip ${bothOk?'ok':'err'}`;
+  showExFb(bothOk,ex.fb);
+}
+function renderDarwin(ex){
+  const body=document.getElementById('exBody');
+  const letters=['1','2','3','4'];
+  body.innerHTML+=`<div class="dual-label">A. ¿Verdadero (V) o Falso (F)?</div><div class="tf-row"><button class="tf-btn" onclick="answerDarwinTF('V')" id="tfV">V</button><button class="tf-btn" onclick="answerDarwinTF('F')" id="tfF">F</button></div><div class="dual-label" id="darwinBLabel" style="display:none">B. Justificación:</div><div class="opts" id="darwinBOpts" style="display:none">${ex.opts_b.map((op,i)=>`<button class="opt" onclick="answerDarwinB(${i})" id="darwinB${i}"><span class="olet">${letters[i]}</span><span>${op}</span></button>`).join('')}</div>`;
+}
+let darwinTFok=false;
+function answerDarwinTF(chosen){
+  const ex=EXAM_SETS[EX.setIdx].exercises[EX.exIdx];
+  document.getElementById('tfV').disabled=true;
+  document.getElementById('tfF').disabled=true;
+  const ok=chosen===ex.cTF;
+  darwinTFok=ok;
+  const btn=document.getElementById('tf'+chosen);
+  btn.classList.add(chosen==='V'?'sel-v':'sel-f');
+  if(!ok) document.getElementById('tf'+ex.cTF).classList.add(ex.cTF==='V'?'sel-v':'sel-f');
+  document.getElementById('darwinBLabel').style.display='';
+  document.getElementById('darwinBOpts').style.display='';
+}
+function answerDarwinB(chosen){
+  const ex=EXAM_SETS[EX.setIdx].exercises[EX.exIdx];
+  document.querySelectorAll('[id^=darwinB]').forEach(b=>b.disabled=true);
+  const ok=chosen===ex.cB;
+  const bothOk=darwinTFok&&ok;
+  document.getElementById(`darwinB${chosen}`).classList.add(ok?'ok':'err');
+  if(!ok) document.getElementById(`darwinB${ex.cB}`).classList.add('show-ok');
+  EX.answers.push(bothOk?1:0);
+  document.getElementById('pip'+EX.exIdx).className=`ex-pip ${bothOk?'ok':'err'}`;
+  showExFb(bothOk,ex.fb);
+}
+function showExFb(ok,fbText){
+  const box=document.getElementById('exFbBox');
+  document.getElementById('exFbTitle').textContent=ok?'✓ ¡Correcto!':'📌 Explicación:';
+  document.getElementById('exFbText').textContent=fbText;
+  box.style.display='block';
+  box.className=ok?'fb-box on':'fb-box on wrong';
+  document.getElementById('exNextBtn').style.display='inline-flex';
+  document.getElementById('exNextBtn').textContent=EX.exIdx<EXAM_SETS[EX.setIdx].exercises.length-1?'Siguiente ejercicio →':'Ver resultados →';
+}
+function nextExercise(){
+  EX.exIdx++;
+  if(EX.exIdx>=EXAM_SETS[EX.setIdx].exercises.length){
+    showExamResults();
+    return;
+  }
+  renderExercise();
+}
+function showExamResults(){
+  showScreen('examResults');
+  const total=EXAM_SETS[EX.setIdx].exercises.length;
+  const score=EX.answers.reduce((a,b)=>a+b,0);
+  const pct=Math.round((score/total)*100);
+  document.getElementById('exResRing').style.setProperty('--pct',`${pct*3.6}deg`);
+  document.getElementById('exRingLabel').textContent=`${score}/${total}`;
+  let title,sub;
+  if(score===10){title='¡Parcial perfecto! 🎉';sub='Aprobás promocionando. Hacé otro set para confirmar.';}
+  else if(score>=8){title='¡Muy bien! 💪';sub='Con este puntaje aprobás. Repasá los 2 errores.';}
+  else if(score>=6){title='Aprobado por el mínimo';sub='Necesitás reforzar. Revisá las explicaciones de cada error.';}
+  else{title='Hay que seguir estudiando 📚';sub='Repasá el modo Repaso, practicá cada nivel, y volvé a intentarlo.';}
+  document.getElementById('exResTitle').textContent=title;
+  document.getElementById('exResSub').textContent=sub;
+  const set=EXAM_SETS[EX.setIdx];
+  document.getElementById('exDetailed').innerHTML=`<div class="breakdown">${set.exercises.map((ex,i)=>`<div class="bi"><span>Ej ${i+1}: ${ex.title}</span><span class="bv" style="color:${EX.answers[i]?'var(--ok)':'var(--err)'}">${EX.answers[i]?'✓ Correcto':'✗ Incorrecto'}</span></div>`).join('')}</div>`;
+}
+function retryExam(){startExam();}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
 function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+// init
+buildStudy('all');
 </script>
 </body>
 </html>
